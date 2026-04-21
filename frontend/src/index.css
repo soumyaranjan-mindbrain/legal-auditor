@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream text-plum-muted font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-plum font-bold tracking-tight;
+  }
+}
+
+/* Glassmorphism utility as per rule 5 */
+.glass {
+  @apply backdrop-blur-[24px] bg-white/10;
+}
+
+.dark .glass {
+  @apply bg-frost/30;
+}
+
+/* No-line rule implementation: use soft shifts instead of borders */
+.surface-card {
+  @apply bg-cream-card rounded-lg p-6 transition-all duration-300;
+}
+
+.surface-elevated {
+  @apply bg-cream-elevated rounded-lg p-6;
+}
