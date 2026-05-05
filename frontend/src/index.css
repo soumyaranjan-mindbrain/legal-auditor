@@ -1,31 +1,172 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 @layer base {
+  :root {
+    --background: 240 25% 96%; /* Visible Indigo Tint */
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 6px;
+    --panel: 240 25% 94.5%; /* Clearly distinct panel color */
+    --panel-foreground: 240 10% 3.9%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --panel: 240 10% 6%;
+    --panel-foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
   body {
-    @apply bg-cream text-plum-muted font-sans antialiased;
+    background-color: hsl(0, 0%, 100%);
+    color: hsl(var(--foreground));
+    font-family: 'Geist Sans', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-plum font-bold tracking-tight;
+  /* Soft Airy Fintech Mesh */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      /* Soft Rose (Top Left) - REVERTED */
+      radial-gradient(circle at 10% 10%, hsla(340, 50%, 88%, 0.8) 0%, transparent 50%),
+      /* Vibrant Cyan (Bottom Right) - SOFTENED */
+      radial-gradient(circle at 90% 90%, hsla(180, 70%, 85%, 0.85) 0%, transparent 60%),
+      /* Vibrant Yellow (Top Right) - SOFTENED */
+      radial-gradient(circle at 90% 10%, hsla(60, 70%, 85%, 0.85) 0%, transparent 60%),
+      /* Soft Indigo (Bottom Left) - REVERTED */
+      radial-gradient(circle at 10% 90%, hsla(220, 50%, 88%, 0.5) 0%, transparent 50%),
+      /* Luminous Core (White) */
+      radial-gradient(circle at 50% 50%, white 0%, transparent 80%);
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(100px);
+    opacity: 1;
+  }
+
+  /* Secondary Smoothing Layer - Restored to soften */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, hsla(0, 0%, 100%, 0.6) 0%, transparent 100%);
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.2;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    letter-spacing: -0.025em;
+    font-weight: 500;
   }
 }
 
-/* Glassmorphism utility as per rule 5 */
-.glass {
-  @apply backdrop-blur-[24px] bg-white/10;
+@layer components {
+  /* KPI Card Utilities */
+  .kpi-indigo { 
+    background: linear-gradient(to bottom right, rgba(224, 231, 255, 0.5), #ffffff 70%, rgba(199, 210, 254, 0.3)); 
+    border: 1px solid rgba(165, 180, 252, 0.4) !important;
+  }
+  .kpi-rose { 
+    background: linear-gradient(to bottom right, rgba(255, 228, 230, 0.5), #ffffff 70%, rgba(254, 205, 211, 0.3)); 
+    border: 1px solid rgba(251, 113, 133, 0.4) !important;
+  }
+  .kpi-amber { 
+    background: linear-gradient(to bottom right, rgba(254, 243, 199, 0.5), #ffffff 70%, rgba(253, 230, 138, 0.3)); 
+    border: 1px solid rgba(252, 211, 77, 0.4) !important;
+  }
+  .kpi-violet { 
+    background: linear-gradient(to bottom right, rgba(237, 233, 254, 0.5), #ffffff 70%, rgba(221, 214, 254, 0.3)); 
+    border: 1px solid rgba(196, 181, 253, 0.4) !important;
+  }
+
+  /* KPI Card Base */
+  .kpi-card {
+    border-radius: 6px;
+    border: 1px solid hsl(var(--border));
+    background: #ffffff;
+    box-shadow: none;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark .kpi-card {
+    background: rgba(24, 24, 27, 0.4);
+    border-color: hsl(var(--border));
+  }
 }
 
-.dark .glass {
-  @apply bg-frost/30;
+/* Hairline borders utility */
+.border-hairline {
+  border-width: 1px;
 }
 
-/* No-line rule implementation: use soft shifts instead of borders */
-.surface-card {
-  @apply bg-cream-card rounded-lg p-6 transition-all duration-300;
+/* Optimized Scrollbar (Zinc) */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
 }
 
-.surface-elevated {
-  @apply bg-cream-elevated rounded-lg p-6;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: hsla(var(--muted-foreground), 0.2);
+  border-radius: 9999px;
+  transition: background-color 150ms;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: hsla(var(--muted-foreground), 0.4);
 }
