@@ -48,7 +48,6 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
                 { path: '/client/documents', label: 'Directory', icon: Archive },
                 { path: '/client/audit', label: 'Audit', icon: FileSearch },
                 { path: '/client/compare', label: 'Variance', icon: GitCompare },
-                { path: '/client/playbook', label: 'Playbook', icon: BookOpen },
             ],
             admin: [
                 { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
