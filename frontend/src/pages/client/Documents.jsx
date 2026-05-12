@@ -22,12 +22,14 @@ import { cn } from '../../lib/utils';
 import { useHeader } from '../../context/HeaderContext';
 import api from '../../lib/api';
 
+import { createPortal } from 'react-dom';
+
 const DeleteModal = ({ isOpen, onClose, onConfirm, fileName, isDeleting }) => {
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose} />
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose} />
             <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 relative z-10">
                 <div className="p-6">
                     <div className="flex items-center gap-4 mb-6">
@@ -72,12 +74,14 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, fileName, isDeleting }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
 const Documents = () => {
     const [documents, setDocuments] = useState([]);
+    const [auditedDocIds, setAuditedDocIds] = useState(new Set());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
@@ -90,8 +94,18 @@ const Documents = () => {
     const fetchDocuments = async () => {
         try {
             setLoading(true);
-            const res = await api.get('/documents');
-            setDocuments(res.data);
+            const [docsRes, auditsRes] = await Promise.all([
+                api.get('/documents'),
+                api.get('/audit/all')
+            ]);
+            
+            setDocuments(docsRes.data);
+            
+            const auditedIds = new Set(auditsRes.data
+                .filter(a => a.status === 'completed')
+                .map(a => typeof a.targetDocumentId === 'object' ? a.targetDocumentId._id : a.targetDocumentId)
+            );
+            setAuditedDocIds(auditedIds);
         } catch (err) {
             console.error("Failed to fetch documents", err);
             setError('Failed to load documents. Please check your connection.');
@@ -135,9 +149,6 @@ const Documents = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
-            <Button variant="outline" size="icon" className="btn-secondary h-10 w-10 border-slate-200 dark:border-slate-800 rounded-md dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800">
-                <Filter className="w-3.5 h-3.5" />
-            </Button>
         </div>
     ), [searchQuery]);
 
@@ -205,8 +216,17 @@ const Documents = () => {
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <div className="text-[13px] font-bold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors">{doc.fileName}</div>
-                                                        {doc.isSource && (
-                                                            <span className="text-[7px] font-black bg-primary text-white px-1.5 py-0.5 rounded uppercase tracking-[0.2em]">Base</span>
+                                                        {doc.isSource ? (
+                                                            <span className="text-[9px] font-black bg-slate-900 dark:bg-primary text-white dark:text-slate-900 px-2 py-0.5 rounded uppercase tracking-[0.1em] shadow-sm">Base</span>
+                                                        ) : (
+                                                            <span className={cn(
+                                                                "text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-[0.2em] border shadow-sm",
+                                                                auditedDocIds.has(doc._id) 
+                                                                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-900" 
+                                                                    : "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900"
+                                                            )}>
+                                                                {auditedDocIds.has(doc._id) ? 'Audited' : 'Pending'}
+                                                            </span>
                                                         )}
                                                     </div>
                                                     <div className="flex items-center gap-1.5 text-[9px] font-mono text-slate-600 dark:text-slate-500 uppercase font-black">
@@ -220,7 +240,7 @@ const Documents = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-1 transition-opacity">
-                                                <Link to={`/client/audit/${doc._id}`}>
+                                                <Link to={`/client/documents/${doc._id}`}>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-700 dark:text-slate-400 hover:text-primary dark:hover:text-primary">
                                                         <Eye className="w-3.5 h-3.5" />
                                                     </Button>

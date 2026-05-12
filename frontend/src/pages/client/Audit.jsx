@@ -41,12 +41,17 @@ const Audit = () => {
     const [syncing, setSyncing] = useState(false);
     const [view, setView] = useState('pre-audit'); // 'pre-audit' | 'variance'
     const [error, setError] = useState('');
+    const [allAudits, setAllAudits] = useState([]);
 
     const fetchAuditEnvironment = async () => {
         try {
             setLoading(true);
-            const docsRes = await api.get('/documents');
+            const [docsRes, allAuditsRes] = await Promise.all([
+                api.get('/documents'),
+                api.get('/audit/all')
+            ]);
             setAllDocs(docsRes.data || []);
+            setAllAudits(allAuditsRes.data || []);
 
             if (id) {
                 const [docRes, auditRes] = await Promise.all([
@@ -68,6 +73,8 @@ const Audit = () => {
                 } else {
                     setAuditData(null);
                     setView('pre-audit');
+                    // Auto-initiate audit if coming from a direct "Analyze" action
+                    setTimeout(() => initiateSync(), 500);
                 }
             }
         } catch (err) {
@@ -160,7 +167,20 @@ const Audit = () => {
                                     <div className="flex items-center gap-1.5 text-[8px] font-black text-slate-400 uppercase tracking-tighter">
                                         <Hash className="w-2.5 h-2.5" /> {doc._id.substring(0, 8)}
                                     </div>
-                                    <div className="h-1.5 w-8 rounded-full bg-slate-100 dark:bg-slate-800 group-hover:bg-primary/20 transition-colors" />
+                                    {(() => {
+                                        const audit = allAudits.find(a => (a.targetDocumentId?._id || a.targetDocumentId) === doc._id);
+                                        const isAudited = audit?.status === 'completed';
+                                        return (
+                                            <span className={cn(
+                                                "text-[7px] font-black uppercase tracking-[0.1em] px-1.5 py-0.5 rounded border shadow-sm",
+                                                isAudited 
+                                                    ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-900" 
+                                                    : "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900"
+                                            )}>
+                                                {isAudited ? "Audited" : "Pending"}
+                                            </span>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                             
@@ -202,32 +222,20 @@ const Audit = () => {
                         <Scaling className="w-5 h-5 text-slate-900 dark:text-primary group-hover:scale-110 transition-transform" />
                     </div>
                     <div>
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{document.fileName}</h2>
+                        <div className="flex items-center gap-3">
+                            <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">{document.fileName}</h2>
                             <span className={cn(
-                                "text-[8px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest",
-                                view === 'variance' ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                                "text-[9px] font-black uppercase px-2.5 py-1 rounded-full tracking-widest shadow-sm",
+                                view === 'variance' ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-700"
                             )}>
                                 {view === 'variance' ? 'Analyzed' : 'Draft'}
                             </span>
                         </div>
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">Comparative Session Node • UUID_{id.substring(0, 6)}</p>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-0.5">UUID_{id.substring(0, 6)}</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {view === 'variance' && (
-                        <div className="flex items-center gap-6 mr-6 border-r border-slate-200 dark:border-slate-800 pr-6">
-                            <div className="text-right">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Compliance Match</p>
-                                <p className="text-lg font-black text-emerald-500">{auditData.results.complianceMatch}%</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Global Risk Score</p>
-                                <p className="text-lg font-black text-rose-500">{auditData.results.overallScore}/100</p>
-                            </div>
-                        </div>
-                    )}
                     
 
                     <Button 
@@ -240,21 +248,79 @@ const Audit = () => {
                                 : "btn-premium shadow-primary/20"
                         )}
                     >
-                        {syncing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-                        {view === 'variance' ? "Re-Analyze" : "Initiate Audit"}
+                        {view === 'variance' ? (syncing ? "Re-Analyzing..." : "Re-Analyze") : (syncing ? "Auditing..." : "Initiate Audit")}
                     </Button>
                 </div>
-            </div>
-
-            <div className="flex-1 min-h-0 flex gap-4 overflow-hidden">
+            </div>            <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-4 space-y-8">
                 
-                {/* Dual-View Document Pane */}
-                <div className={cn(
-                    "flex transition-all duration-500 gap-4 min-h-0",
-                    view === 'variance' ? "w-2/3" : "w-full"
-                )}>
+                {/* Variance Intelligence Stream (Vertical) */}
+                {view === 'variance' && (
+                    <div className="flex flex-col bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm animate-in slide-in-from-top-4 duration-500">
+                        <div className="h-10 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-slate-900 text-white">
+                            <div className="flex items-center gap-3">
+                                <ArrowLeftRight className="w-4 h-4 text-amber-400" />
+                                <span className="text-xs font-black uppercase tracking-[0.2em] text-amber-50">Variance Intelligence Matrix</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Total Nodes Identified: {auditData?.results?.clauses?.length || 0}</span>
+                            </div>
+                        </div>
+
+                        <div className="p-4 space-y-6">
+                            {auditData?.results?.clauses.map((clause, i) => (
+                                <div key={i} className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-950 shadow-sm flex flex-col">
+                                    <div className={cn(
+                                        "px-4 py-3 flex flex-col items-center justify-center text-center gap-1.5 transition-colors duration-300",
+                                        clause.severity === 'critical' && "bg-rose-600 text-white shadow-lg shadow-rose-600/20",
+                                        clause.severity === 'high' && "bg-rose-300/90 text-rose-950 dark:bg-rose-900/60 dark:text-rose-100",
+                                        clause.severity === 'medium' && "bg-amber-100 text-amber-950 dark:bg-amber-900/40 dark:text-amber-200",
+                                        !['critical', 'high', 'medium'].includes(clause.severity) && "bg-slate-100 dark:bg-slate-900 dark:text-slate-100"
+                                    )}>
+                                        <h4 className="text-sm font-black uppercase tracking-[0.1em]">
+                                            {i + 1}. {clause.title}
+                                        </h4>
+                                        <div className="flex items-center gap-2">
+                                            <span className={cn(
+                                                "text-[9px] font-black uppercase tracking-widest px-3 py-0.5 rounded-full border shadow-sm",
+                                                clause.severity === 'critical' ? "bg-white/20 border-white/20 text-white" : "bg-black/10 dark:bg-white/10 border-black/10 dark:border-white/10"
+                                            )}>
+                                                {clause.severity}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="p-4 space-y-4">
+                                        <div className="space-y-4">
+                                            <div className="space-y-1.5">
+                                                <p className="text-[8px] font-black text-rose-500 uppercase tracking-widest">Detected Variance in Target</p>
+                                                <p className="text-[11px] font-medium text-slate-800 dark:text-slate-300 leading-relaxed">
+                                                    "{clause.originalText}"
+                                                </p>
+                                            </div>
+                                            <div className="space-y-1.5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
+                                                <p className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Playbook Standard Requirement</p>
+                                                <p className="text-[11px] font-medium text-slate-800 dark:text-slate-300 leading-relaxed">
+                                                    "{clause.baseText || 'N/A'}"
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="p-4 bg-emerald-50/40 dark:bg-emerald-900/10 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-800/50 rounded-xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)]">
+                                            <p className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.15em] mb-2">AI Remediation Guidance</p>
+                                            <p className="text-[11px] font-bold text-slate-800 dark:text-emerald-50 leading-relaxed">
+                                                {clause.suggestedFix}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Dual-View Document Pane (Bottom - Side-by-Side) */}
+                <div className="h-[600px] flex gap-4 shrink-0 pb-6">
                     {/* Base Document Viewer */}
-                    <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex-1 flex flex-col bg-[#fffbf0] dark:bg-[#0f0a05] border-2 border-amber-400 dark:border-amber-700/50 rounded-xl overflow-hidden shadow-[0_0_20px_-5px_rgba(251,191,36,0.2)]">
                         {baseDocument ? (
                             <FileViewer 
                                 docId={baseDocument._id} 
@@ -264,67 +330,19 @@ const Audit = () => {
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center opacity-50">
                                 <AlertCircle className="w-8 h-8 mb-3" />
-                                <p className="text-[10px] font-black uppercase tracking-widest">No Base Reference</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest">No Base Reference Loaded</p>
                             </div>
                         )}
                     </div>
 
                     {/* Target Document Viewer */}
-                    <div className="flex-1 flex flex-col bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                    <div className="flex-1 flex flex-col bg-[#fffbf0] dark:bg-[#0f0a05] border-2 border-amber-400 dark:border-amber-700/50 rounded-xl overflow-hidden shadow-[0_0_20px_-5px_rgba(251,191,36,0.2)]">
                         <FileViewer 
                             docId={document._id} 
                             title={document.fileName} 
                         />
                     </div>
                 </div>
-
-                {/* Analysis Report Pane */}
-                {view === 'variance' && (
-                    <div className="w-1/3 flex flex-col bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm animate-in slide-in-from-right-4 duration-500">
-                        <div className={cn(
-                            "h-12 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 shrink-0 transition-colors bg-slate-900 text-white"
-                        )}>
-                            <div className="flex items-center gap-3">
-                                <ArrowLeftRight className="w-4 h-4 text-amber-400" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">
-                                    Variance Report
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto custom-scrollbar">
-                            <div className="p-4 space-y-4">
-                                {auditData?.results?.clauses.map((clause, i) => (
-                                    <div key={i} className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-950 shadow-sm">
-                                        <div className={cn(
-                                            "px-3 py-2 flex items-center justify-between",
-                                            clause.severity === 'critical' ? "bg-rose-500 text-white" : "bg-slate-100 dark:bg-slate-900"
-                                        )}>
-                                            <h4 className="text-[10px] font-black uppercase tracking-tight truncate">{clause.title}</h4>
-                                            <span className="text-[7px] font-black uppercase tracking-widest bg-white/10 px-1.5 py-0.5 rounded border border-white/20">
-                                                {clause.severity}
-                                            </span>
-                                        </div>
-                                        <div className="p-3 space-y-3">
-                                            <div className="space-y-2">
-                                                <p className="text-[8px] font-black text-rose-500 uppercase tracking-widest">Variance Detected</p>
-                                                <p className="text-[10px] font-medium text-slate-800 dark:text-slate-300 leading-relaxed italic line-clamp-3">
-                                                    "{clause.originalText}"
-                                                </p>
-                                            </div>
-                                            <div className="p-2 bg-slate-900 text-white rounded-lg">
-                                                <p className="text-[8px] font-black text-emerald-400 uppercase tracking-widest mb-1">Recommendation</p>
-                                                <p className="text-[10px] font-bold text-emerald-50 leading-relaxed">
-                                                    {clause.suggestedFix}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );

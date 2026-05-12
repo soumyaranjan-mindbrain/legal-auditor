@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98.5%; /* #f8fafc */
+    --background: 44 45% 97.5%; /* Warm Parchment / Cream #fffbf0 area */
     --foreground: 222 47% 11%; /* #0f172a */
     --card: 0 0% 100%; /* #ffffff */
     --card-foreground: 222 47% 11%;
@@ -18,14 +18,14 @@
     --secondary-foreground: 215 25% 27%;
     --muted: 215 19% 35%; /* #475569 - Slate 600 */
     --muted-foreground: 215 19% 35%;
-    --accent: 226 100% 97%;
+    --accent: 44 100% 97%;
     --accent-foreground: 222 47% 11%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
     --success: 142 71% 45%;
     --success-foreground: 210 40% 98%;
-    --border: 215 16% 82%; /* #cbd5e1 - Slate 300 area */
-    --input: 215 16% 82%;
+    --border: 44 20% 85%; /* Warmer borders */
+    --input: 44 20% 85%;
     --ring: 222 47% 11%;
     --radius: 12px;
     --panel: 0 0% 100%;
@@ -110,20 +110,20 @@
     text-rendering: optimizeLegibility;
     min-height: 100vh;
     
-    /* Subtle Modern Ambient Gradient - Light Mode */
+    /* Premium Warm Ambient Gradient - Parchment System */
     background: 
-      radial-gradient(circle at top left, rgba(99,102,241,0.05), transparent 35%),
-      radial-gradient(circle at bottom right, rgba(59,130,246,0.04), transparent 40%),
-      #f8fafc;
+      radial-gradient(circle at top left, rgba(251,191,36,0.12), transparent 35%),
+      radial-gradient(circle at bottom right, rgba(251,191,36,0.08), transparent 40%),
+      #fffbf0;
     background-attachment: fixed;
   }
 
   .dark body {
-    /* Cinematic Ambient Gradient - Dark Mode */
+    /* Cinematic Warm Amber Gradient - Dark Mode */
     background: 
-      radial-gradient(circle at top left, rgba(99,102,241,0.12), transparent 35%),
-      radial-gradient(circle at bottom right, rgba(59,130,246,0.08), transparent 40%),
-      #020617;
+      radial-gradient(circle at top left, rgba(251,191,36,0.12), transparent 35%),
+      radial-gradient(circle at bottom right, rgba(251,191,36,0.08), transparent 40%),
+      #0c0a09;
     background-attachment: fixed;
   }
 

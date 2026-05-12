@@ -27,7 +27,7 @@ import { AuthContext } from '../context/AuthContext';
 const DashboardLayout = ({ children, role = 'client', title: propTitle, headerActions: propActions, showRightPanel = false, rightPanelContent }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { logout } = useContext(AuthContext);
+    const { user, logout } = useContext(AuthContext);
     const [isCollapsed, setIsCollapsed] = useState(false);
     const { title: contextTitle, actions: contextActions } = useHeader();
 
@@ -66,15 +66,56 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
         return [...(roles[role] || roles.client), ...common];
     };
 
+    const [showSignOutModal, setShowSignOutModal] = useState(false);
     const navItems = getNavItems();
+
+    const handleSignOut = async () => {
+        await logout();
+        navigate('/login');
+    };
 
     return (
         <div className="flex h-screen w-full bg-background overflow-hidden selection:bg-primary selection:text-white relative">
             <CommandBar />
             
+            {/* Premium Sign-Out Modal */}
+            {showSignOutModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-md" onClick={() => setShowSignOutModal(false)} />
+                    <div className="relative w-full max-w-[380px] bg-[#fffcf0] dark:bg-[#0c0a09] border border-amber-200/50 dark:border-amber-900/30 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="p-8 text-center space-y-6">
+                            <div className="w-16 h-16 rounded-full bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center mx-auto border border-rose-100 dark:border-rose-900/50">
+                                <LogOut className="w-8 h-8 text-rose-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Terminate Session?</h3>
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+                                    You are about to securely sign out of the <span className="text-primary">Mindex Auditor</span> platform.
+                                </p>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                                <Button 
+                                    onClick={handleSignOut}
+                                    className="w-full h-11 bg-rose-600 hover:bg-rose-700 text-white font-black uppercase text-[10px] tracking-widest rounded-xl shadow-lg shadow-rose-600/20 transition-all active:scale-[0.98]"
+                                >
+                                    Confirm Sign Out
+                                </Button>
+                                <Button 
+                                    variant="ghost"
+                                    onClick={() => setShowSignOutModal(false)}
+                                    className="w-full h-11 text-slate-500 dark:text-slate-400 font-black uppercase text-[10px] tracking-widest hover:bg-slate-100 dark:hover:bg-slate-900 rounded-xl"
+                                >
+                                    Stay Connected
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             {/* Top Navbar: Premium Enterprise Header */}
-            <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 z-50 flex items-center shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.02)] dark:shadow-none">
-                <div className="w-[200px] h-full flex items-center px-6 border-r border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-950">
+            <header className="fixed top-0 left-0 right-0 h-14 bg-[#fffcf0] dark:bg-[#0c0a09] border-b border-amber-200/50 dark:border-amber-900/30 z-50 flex items-center shrink-0 shadow-[0_1px_2px_rgba(251,191,36,0.05)] dark:shadow-none">
+                <div className="w-[200px] h-full flex items-center px-6 border-r border-amber-200/50 dark:border-amber-900/30 shrink-0 bg-[#fffcf0] dark:bg-[#0c0a09]">
                     <Link to="/" className="flex items-center gap-3 group">
                         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
                             <img src="/favicon_mbi.png" alt="Mindex Logo" className="w-full h-full object-cover" />
@@ -83,7 +124,7 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
                     </Link>
                 </div>
 
-                <div className="flex-1 flex items-center justify-between px-6 bg-white dark:bg-slate-950">
+                <div className="flex-1 flex items-center justify-between px-6 bg-[#fffcf0] dark:bg-[#0c0a09]">
                     <div className="flex items-center gap-6">
                         <h1 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 dark:text-slate-100">{title || 'Dashboard'}</h1>
                     </div>
@@ -100,8 +141,7 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
                         <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
                         <div className="flex items-center gap-3 cursor-pointer group px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-all" onClick={() => navigate(role === 'client' ? '/client/profile' : `/${role}/profile`)}>
                             <div className="text-right hidden sm:block">
-                                <p className="text-[11px] font-bold leading-none mb-1 text-slate-900 dark:text-slate-100">Soumya R.</p>
-                                <p className="text-[9px] text-slate-600 dark:text-slate-400 leading-none uppercase tracking-tighter font-bold">Enterprise Pro</p>
+                                <p className="text-[11px] font-bold leading-none text-slate-900 dark:text-slate-100">{user?.fullName || user?.name || 'Authorized User'}</p>
                             </div>
                             <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden group-hover:border-primary/50 transition-all shadow-sm">
                                 <User className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors" />
@@ -115,7 +155,7 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
                 {/* Left Column: Premium SaaS Sidebar */}
                 <aside
                     className={cn(
-                        "hidden md:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] relative z-40 will-change-[width]",
+                        "hidden md:flex flex-col border-r border-amber-200/50 dark:border-amber-900/30 bg-[#fffcf0] dark:bg-[#0c0a09] transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] relative z-40 will-change-[width]",
                         isCollapsed ? "w-[72px]" : "w-[200px]"
                     )}
                 >
@@ -151,7 +191,7 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
                         </div>
                     </ScrollArea>
 
-                    <div className={cn("p-3 border-t border-slate-100 dark:border-slate-900 space-y-1.5")}>
+                    <div className={cn("p-3 pb-8 border-t border-slate-100 dark:border-slate-900 space-y-1.5")}>
                         <Button
                             variant="ghost"
                             size="sm"
@@ -172,12 +212,7 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
                                 "w-full text-slate-700 dark:text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 h-9 justify-start transition-all duration-200 rounded-lg",
                                 isCollapsed ? "justify-center px-0" : "px-3"
                             )}
-                            onClick={async () => {
-                                if (window.confirm("Are you sure you want to terminate the current session?")) {
-                                    await logout();
-                                    navigate('/login');
-                                }
-                            }}
+                            onClick={() => setShowSignOutModal(true)}
                         >
                             <LogOut className="h-4 w-4 shrink-0" strokeWidth={2} />
                             {!isCollapsed && <span className="ml-3 text-[13px] font-semibold">Sign Out</span>}
@@ -217,8 +252,8 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
 
                 {/* Right Column: Analysis Panel (Premium Sidebar) */}
                 {showRightPanel && (
-                    <aside className="w-[340px] border-l border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm overflow-hidden flex flex-col z-20">
-                        <div className="h-14 flex items-center px-6 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                    <aside className="w-[340px] border-l border-amber-200/50 dark:border-amber-900/30 bg-[#fffcf0]/50 dark:bg-[#0c0a09]/50 backdrop-blur-sm overflow-hidden flex flex-col z-20">
+                        <div className="h-14 flex items-center px-6 border-b border-amber-200/50 dark:border-amber-900/30 shrink-0">
                             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Analysis Center</span>
                         </div>
                         <ScrollArea className="flex-1">

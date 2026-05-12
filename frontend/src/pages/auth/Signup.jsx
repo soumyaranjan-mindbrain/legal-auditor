@@ -40,113 +40,114 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-hidden">
-            <div className="absolute inset-0 z-0 opacity-[0.02] pointer-events-none"
-                style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #000 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+        <div className="min-h-screen bg-[#fffcf0] dark:bg-[#0c0a09] flex flex-col items-center justify-center p-4 relative overflow-hidden transition-colors duration-500">
+            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
+                style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, #fbbf24 1px, transparent 0)', backgroundSize: '32px 32px' }} />
 
-            <div className="w-full max-w-[450px] space-y-8 relative z-10">
-                <div className="flex flex-col items-center text-center space-y-4">
-                    <div className="w-12 h-12 rounded-md border border-zinc-200 dark:border-zinc-800 flex items-center justify-center bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm">
-                        <Command className="w-6 h-6 text-primary" strokeWidth={1.5} />
+            <div className="w-full max-w-[540px] space-y-4 relative z-10">
+                <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-16 h-16 rounded-xl border-2 border-amber-400/50 flex items-center justify-center bg-white/80 dark:bg-zinc-950/40 backdrop-blur-md shadow-[0_0_20px_-5px_rgba(251,191,36,0.2)]">
+                        <img src="/favicon_mbi.png" alt="Mindex Logo" className="w-10 h-10 object-contain" />
                     </div>
-                    <div className="space-y-1">
-                        <h1 className="text-2xl font-bold tracking-tighter">Create Account</h1>
-                        <p className="text-[13px] text-muted-foreground uppercase font-bold tracking-widest opacity-60">Join MBI Legal Auditor</p>
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">Mindex Auditor</h1>
                     </div>
                 </div>
 
-                <div className="bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-8 shadow-sm space-y-6">
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="bg-white/80 dark:bg-[#0c0a09]/60 backdrop-blur-md border border-amber-200/50 dark:border-amber-900/30 rounded-2xl p-6 shadow-xl space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-md text-[10px] font-bold text-rose-500 uppercase tracking-widest text-center">
+                            <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] font-black text-rose-600 uppercase tracking-widest text-center shadow-inner">
                                 {error}
                             </div>
                         )}
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Full Name</label>
-                                <div className="relative">
-                                    <Input
-                                        placeholder="Enter your name"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                        required
-                                        className="h-11 pl-4 rounded-md border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30 focus-visible:ring-1 focus-visible:ring-zinc-400"
-                                    />
-                                </div>
+                            <div className="space-y-2.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Full Name</label>
+                                <Input
+                                    placeholder="Enter your name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    required
+                                    className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
+                                />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Phone (Optional)</label>
-                                <div className="relative">
-                                    <Input
-                                        placeholder="Enter your phone"
-                                        value={formData.phone}
-                                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                        className="h-11 pl-4 rounded-md border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30 focus-visible:ring-1 focus-visible:ring-zinc-400"
-                                    />
-                                </div>
+                            <div className="space-y-2.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Phone (Optional)</label>
+                                <Input
+                                    placeholder="Enter your phone"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                    className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
+                                />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email</label>
                             <Input
                                 type="email"
                                 placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                                 required
-                                className="h-11 px-4 rounded-md border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30 focus-visible:ring-1 focus-visible:ring-zinc-400"
+                                className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Password</label>
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Password</label>
                             <Input
                                 type="password"
                                 placeholder="Enter your password"
                                 value={formData.password}
                                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                                 required
-                                className="h-11 px-4 rounded-md border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/30 focus-visible:ring-1 focus-visible:ring-zinc-400"
+                                className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
                             />
                         </div>
 
                         {/* Verification Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-zinc-50 dark:bg-zinc-900/50 rounded-md border border-zinc-200 dark:border-zinc-800">
+                        <div className="flex items-center justify-between p-4 bg-amber-50/50 dark:bg-amber-900/10 rounded-xl border border-amber-200/30 dark:border-amber-900/20">
                             <div className="space-y-0.5">
-                                <p className="text-[11px] font-bold uppercase tracking-widest">Verify Email</p>
+                                <p className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">Email Verification</p>
+                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Recommended for Security</p>
                             </div>
                             <div 
                                 onClick={() => setFormData({...formData, verifyEmail: !formData.verifyEmail})}
-                                className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${formData.verifyEmail ? 'bg-primary' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+                                className={`w-11 h-6 rounded-full relative cursor-pointer transition-all duration-300 ${formData.verifyEmail ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-800'}`}
                             >
-                                <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${formData.verifyEmail ? 'left-6' : 'left-1'}`} />
+                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-sm ${formData.verifyEmail ? 'left-6' : 'left-1'}`} />
                             </div>
                         </div>
 
                         <Button 
                             type="submit" 
                             disabled={loading}
-                            className="w-full h-11 rounded-md text-xs uppercase font-bold tracking-widest mt-2 group"
+                            className="w-full h-12 bg-slate-900 dark:bg-amber-500 dark:text-slate-900 rounded-xl text-[11px] uppercase font-black tracking-[0.2em] mt-4 group shadow-lg shadow-slate-900/10 dark:shadow-amber-500/20"
                         >
                             {loading ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                             ) : (
                                 <>
                                     Create Account
-                                    <ArrowRight className="w-3.5 h-3.5 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                                    <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform" />
                                 </>
                             )}
                         </Button>
                     </form>
 
                     <div className="pt-4 text-center">
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                            Already have an account? <Link to="/login" className="text-primary hover:underline">Sign In</Link>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                            Already have an account? <Link to="/login" className="text-amber-600 hover:text-amber-700 font-black decoration-2 underline-offset-4">Login now</Link>
                         </p>
                     </div>
+
+                </div>
+
+                <div className="flex flex-col items-center space-y-6 opacity-60">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">© 2026 • ALL RIGHTS RESERVED</p>
                 </div>
             </div>
         </div>

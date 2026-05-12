@@ -15,78 +15,71 @@ import { Button } from './ui/button';
 import { cn } from '../lib/utils';
 
 export const AnalysisInsights = ({ role = 'client', data = { documents: [], audits: [] } }) => {
-    const completedAudits = data.audits.filter(a => a.status === 'completed');
+    const getCriticalVariances = () => {
+        const allVariances = data.audits.reduce((acc, audit) => {
+            if (!audit.results || !audit.results.clauses) return acc;
 
-    const getLiveInsights = () => {
-        const totalAudits = data.audits.length;
-        const completedAudits = data.audits.filter(a => a.status === 'completed');
-        
-        // Calculate real compliance avg
-        const avgCompliance = completedAudits.length > 0 
-            ? Math.round(completedAudits.reduce((acc, curr) => acc + (curr.results?.complianceMatch || 0), 0) / completedAudits.length)
-            : 0;
+            const docVariances = audit.results.clauses
+                .filter(c => c.status === 'variance' || c.status === 'alert')
+                .map(c => ({
+                    title: c.title || 'Untitled Clause',
+                    docName: audit.targetDocumentId?.fileName || 'Vault Node',
+                    status: c.status === 'alert' ? 'Conflict' : 'Variance',
+                    severity: c.severity || 'medium',
+                    id: `${audit._id}-${c._id}`
+                }));
+            return [...acc, ...docVariances];
+        }, []);
 
-        // Count actual critical variances
-        const criticalVariances = completedAudits.reduce((acc, curr) => {
-            return acc + (curr.results?.clauses?.filter(c => c.severity === 'critical' || c.severity === 'high').length || 0);
-        }, 0);
-
-        const latestAudit = completedAudits[0];
-        
-        // Extract the most significant latest variance
-        const latestVariance = latestAudit?.results?.clauses?.find(c => c.status === 'variance' || c.status === 'alert');
-
-        const metrics = [
-            { 
-                label: "Global Compliance", 
-                value: completedAudits.length > 0 ? `${avgCompliance}% Avg` : "Awaiting Audit", 
-                color: avgCompliance > 80 ? "text-emerald-600" : (avgCompliance > 50 ? "text-amber-600" : "text-rose-600"), 
-                bg: "bg-slate-50 dark:bg-slate-900" 
-            },
-            { 
-                label: "Latest Variance", 
-                value: latestVariance ? latestVariance.title : (completedAudits.length > 0 ? "No High Risks" : "Nominal Health"), 
-                color: latestVariance ? (latestVariance.severity === 'critical' ? "text-rose-600" : "text-amber-600") : "text-emerald-600", 
-                bg: latestVariance ? "kpi-rose" : "kpi-emerald" 
-            },
-            { 
-                label: "Analyzed Node", 
-                value: latestAudit ? latestAudit.targetDocumentId?.fileName || "Unknown File" : "No Active Node", 
-                color: "text-indigo-600", 
-                bg: "kpi-indigo" 
-            },
-        ];
-
-        return { metrics };
+        const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+        return allVariances
+            .sort((a, b) => (severityOrder[a.severity] ?? 99) - (severityOrder[b.severity] ?? 99))
+            .slice(0, 4);
     };
 
-    const insights = getLiveInsights();
+    const criticalVariances = getCriticalVariances();
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-5">
             <div className="flex items-center gap-2">
-                <Activity className="w-3.5 h-3.5 text-slate-800 dark:text-slate-200" strokeWidth={2.5} />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-300">Live Analysis Insights</span>
+                <Activity className="w-3.5 h-3.5 text-rose-500" strokeWidth={2.5} />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-300">Variance Analysis Insights</span>
             </div>
             
-            {completedAudits.length === 0 ? (
+            {criticalVariances.length === 0 ? (
                 <div className="p-6 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col items-center justify-center text-center">
                     <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">
-                        Start analysis to see live insights here
+                        Start analysis to see variance insights here
                     </p>
                 </div>
             ) : (
-                <div className="space-y-3">
-                    {insights.metrics.map((item, i) => (
-                        <div key={i} className={cn(
-                            "p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 flex items-center justify-between group cursor-pointer hover:border-primary transition-all shadow-sm dark:shadow-none",
-                            item.bg.startsWith('kpi-') ? item.bg : `bg-white dark:bg-slate-900 ${item.bg}`
+                <div className="grid grid-cols-1 gap-2.5">
+                    {criticalVariances.map((item) => (
+                        <div key={item.id} className={cn(
+                            "p-3 rounded-xl border flex items-center justify-between",
+                            item.severity === 'critical' || item.status === 'Conflict' 
+                                ? "bg-rose-50/50 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900/40" 
+                                : "bg-amber-50/50 border-amber-200 dark:bg-amber-950/10 dark:border-amber-900/40"
                         )}>
-                            <div className="space-y-1">
-                                <p className="text-[9px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-widest leading-none">{item.label}</p>
-                                <p className={cn("text-xs font-black tracking-tight line-clamp-1", item.color)}>{item.value}</p>
+                            <div className="flex-1 min-w-0 space-y-0.5">
+                                <div className="flex items-center gap-2">
+                                    <h4 className="text-[10px] font-black uppercase tracking-tight text-slate-900 dark:text-white truncate">
+                                        {item.title}
+                                    </h4>
+                                    <span className={cn(
+                                        "text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full border",
+                                        item.severity === 'critical' || item.status === 'Conflict'
+                                            ? "text-rose-600 bg-rose-100 border-rose-200"
+                                            : "text-amber-600 bg-amber-100 border-amber-200"
+                                    )}>
+                                        {item.status}
+                                    </span>
+                                </div>
+                                <p className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                    {item.docName}
+                                </p>
                             </div>
-                            <ArrowUpRight className="w-3 h-3 text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors" />
+                            <ArrowUpRight className="w-3 h-3 text-slate-300 dark:text-slate-600 ml-4 shrink-0" />
                         </div>
                     ))}
                 </div>

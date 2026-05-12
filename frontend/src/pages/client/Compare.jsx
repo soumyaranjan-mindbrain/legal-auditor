@@ -1,134 +1,131 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    GitCompare,
-    ArrowRight,
-    FileText,
-    Plus,
-    AlertCircle,
-    CheckCircle,
-    Info,
-    Hash,
-    MoreHorizontal
+    Loader2,
+    Activity,
+    AlertCircle
 } from "lucide-react";
-import { Button } from '../../components/ui/button';
-
 import { useHeader } from '../../context/HeaderContext';
-import { AnalysisAssistant } from '../../components/AIPanel';
+import { cn } from '../../lib/utils';
+import api from '../../lib/api';
 
 const Compare = () => {
-    const headerActions = React.useMemo(() => (
-        <Button size="sm" className="h-8 text-[10px] uppercase font-bold tracking-widest px-6 rounded-[6px] shadow-sm">
-            Run Analysis <GitCompare className="w-3.5 h-3.5 ml-2" />
-        </Button>
-    ), []);
+    const [variances, setVariances] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    useHeader('Variance', headerActions);
+    useEffect(() => {
+        const fetchVariances = async () => {
+            try {
+                setLoading(true);
+                const res = await api.get('/audit/all');
+                
+                // Aggregate all variances across all audits
+                let allVariances = res.data.reduce((acc, audit) => {
+                    if (!audit.results || !audit.results.clauses) return acc;
+
+                    const docVariances = audit.results.clauses
+                        .filter(c => c.status === 'variance' || c.status === 'alert')
+                        .map(c => ({
+                            title: c.title || 'Untitled Clause',
+                            docName: audit.targetDocumentId?.fileName || 'Vault Node',
+                            origin: c.baseText || 'No baseline text available',
+                            target: c.originalText || 'No target text found',
+                            status: c.status === 'alert' ? 'Conflict' : 'Variance',
+                            severity: c.severity || 'medium',
+                            id: `${audit._id}-${c._id}`
+                        }));
+                    return [...acc, ...docVariances];
+                }, []);
+
+                // Display all variances in natural chronological order
+                setVariances(allVariances);
+            } catch (err) {
+                console.error("Failed to fetch global intelligence stream", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchVariances();
+    }, []);
+
+    useHeader('Variance Intelligence', null);
+
+    const getCardBackground = (status, severity) => {
+        if (severity === 'critical') return 'bg-rose-200/40 dark:bg-rose-950/60 border-rose-500 shadow-[0_8px_30px_-5px_rgba(225,29,72,0.15)] dark:border-rose-600';
+        if (status === 'Conflict' || severity === 'high') return 'bg-rose-100/30 dark:bg-rose-950/40 border-rose-400 shadow-[0_8px_25px_-5px_rgba(225,29,72,0.1)] dark:border-rose-700/60';
+        return 'bg-amber-100/30 dark:bg-amber-950/20 border-amber-400/50 shadow-[0_8px_20px_-5px_rgba(251,191,36,0.08)] dark:border-amber-800/60';
+    };
+
+    const getStatusStyles = (status, severity) => {
+        if (status === 'Conflict' || severity === 'high' || severity === 'critical') {
+            return 'text-rose-600 bg-rose-100/50 border-rose-200 dark:bg-rose-900/40 dark:border-rose-800';
+        }
+        return 'text-amber-600 bg-amber-100/50 border-amber-200 dark:bg-amber-900/40 dark:border-amber-800';
+    };
+
+    if (loading) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center space-y-4 opacity-50">
+                <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600">Aggregating Global Intelligence...</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-500">
-
-            {/* Selection Surface */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="kpi-card kpi-indigo p-6 group">
-                    <div className="flex items-center justify-between mb-6 relative z-10">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">Source Document</span>
-                        <Info className="w-3.5 h-3.5 text-foreground/20" />
-                    </div>
-                    <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-10 h-10 rounded-[6px] bg-foreground text-background flex items-center justify-center shadow-lg shadow-foreground/10 transition-all group-hover:scale-105">
-                            <FileText className="w-5 h-5" strokeWidth={1.5} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold truncate leading-none mb-1.5 group-hover:text-primary transition-colors">Meridian_SaaS_Base.pdf</p>
-                            <p className="text-[9px] font-mono text-muted-foreground/60 uppercase tracking-wider">Template • Active</p>
-                        </div>
-                        <Button variant="ghost" size="sm" className="h-7 text-[9px] uppercase font-bold tracking-widest px-3 opacity-40 hover:opacity-100 rounded-full">Change</Button>
-                    </div>
+        <div className="space-y-6 animate-in fade-in duration-500 pb-20">
+            {variances.length === 0 ? (
+                <div className="h-[60vh] flex flex-col items-center justify-center space-y-4 opacity-40 text-center px-6">
+                    <Activity className="w-12 h-12 text-slate-300 dark:text-slate-700" strokeWidth={1.5} />
+                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 dark:text-slate-100">No Intelligence Detected Yet</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 max-w-xs">Run audits in your document registry to see identified variances here.</p>
                 </div>
-
-                <div className="kpi-card kpi-rose p-6 group">
-                    <div className="flex items-center justify-between mb-6 relative z-10">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-foreground/40">Target Document</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-foreground/20" />
-                    </div>
-                    <div className="flex items-center gap-4 relative z-10">
-                        <div className="w-10 h-10 rounded-[6px] bg-foreground text-background flex items-center justify-center shadow-lg shadow-foreground/10 transition-all group-hover:scale-105">
-                            <GitCompare className="w-5 h-5" strokeWidth={1.5} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold truncate leading-none mb-1.5 group-hover:text-primary transition-colors">Thompson_Draft_V2.docx</p>
-                            <p className="text-[9px] font-mono text-muted-foreground/60 uppercase tracking-wider">Negotiated Fragment • 89% Match</p>
-                        </div>
-                        <Button variant="ghost" size="sm" className="h-7 text-[9px] uppercase font-bold tracking-widest px-3 opacity-40 hover:opacity-100 rounded-full">Change</Button>
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-6">
-                <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-2">
-                        <div className="w-1 h-3 bg-primary/40 rounded-full" />
-                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Comparison Results</h3>
-                    </div>
-                </div>
-
-                <div className="kpi-card overflow-hidden divide-y divide-border/50">
-                    {[
-                        {
-                            title: 'Intellectual Property Assignment',
-                            origin: 'Assignor conveys all rights, title and interest in the Work globally and in perpetuity.',
-                            target: 'Assignor conveys limited regional rights only for a period of ten (10) years.',
-                            status: 'Conflict',
-                            color: 'text-rose-600 bg-rose-50 border-rose-100 dark:bg-rose-950/40 dark:border-rose-900/40'
-                        },
-                        {
-                            title: 'Liability Caps',
-                            origin: 'Total aggregate liability shall not exceed 1x the Fees paid in the past 12 months.',
-                            target: 'Total aggregate liability shall not exceed 2x the Fees paid in the past 24 months.',
-                            status: 'Variance',
-                            color: 'text-amber-600 bg-amber-50 border-amber-100 dark:bg-amber-950/40 dark:border-amber-900/40'
-                        },
-                        {
-                            title: 'Governing Law',
-                            origin: 'The laws of the State of Delaware shall govern this repository.',
-                            target: 'The laws of the State of Delaware shall govern this repository.',
-                            status: 'Consistent',
-                            color: 'text-emerald-600 bg-emerald-50 border-emerald-100 dark:bg-emerald-950/40 dark:border-emerald-900/40'
-                        },
-                    ].map((row, idx) => (
-                        <div key={idx} className="p-8 space-y-6 hover:bg-muted/20 transition-all group active:scale-[0.995]">
+            ) : (
+                <div className="space-y-6">
+                    {variances.map((item) => (
+                        <div key={item.id} className={cn("rounded-2xl p-8 space-y-6 border", getCardBackground(item.status, item.severity))}>
                             <div className="flex justify-between items-center">
-                                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">{row.title}</h4>
-                                <span className={`${row.color} text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border shadow-sm`}>
-                                    {row.status}
-                                </span>
+                                <div className="space-y-1.5">
+                                    <h4 className="text-[12px] font-black uppercase tracking-[0.15em] text-slate-900 dark:text-white">{item.title}</h4>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                        <p className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">{item.docName}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {item.severity && (
+                                        <span className="text-[7px] font-black uppercase tracking-[0.2em] opacity-40">{item.severity} severity</span>
+                                    )}
+                                    <span className={`${getStatusStyles(item.status, item.severity)} text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full border shadow-sm`}>
+                                        {item.status}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative">
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2 opacity-30">
-                                        <div className="w-1 h-3 bg-muted-foreground rounded-full" />
-                                        <span className="text-[8px] font-bold uppercase tracking-[0.2em]">Baseline</span>
+                                        <div className="w-1 h-3 bg-slate-400 rounded-full" />
+                                        <span className="text-[8px] font-bold uppercase tracking-[0.2em]">Baseline Clause</span>
                                     </div>
-                                    <p className="text-sm text-muted-foreground/80 leading-relaxed pl-4 border-l italic">
-                                        "{row.origin}"
+                                    <p className="text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed pl-4 border-l italic">
+                                        "{item.origin}"
                                     </p>
                                 </div>
 
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-1 h-3 bg-primary rounded-full" />
-                                        <span className="text-[8px] font-bold text-foreground uppercase tracking-[0.2em]">Target Fragment</span>
+                                        <div className="w-1 h-3 bg-amber-500 rounded-full" />
+                                        <span className="text-[8px] font-bold text-slate-900 dark:text-white uppercase tracking-[0.2em]">Negotiated Fragment</span>
                                     </div>
-                                    <p className="text-sm font-medium leading-relaxed pl-4 border-l border-primary/20">
-                                        "{row.target}"
+                                    <p className="text-[13px] font-medium text-slate-900 dark:text-slate-200 leading-relaxed pl-4 border-l border-amber-500/20">
+                                        "{item.target}"
                                     </p>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
-            </div>
+            )}
         </div>
     );
 };

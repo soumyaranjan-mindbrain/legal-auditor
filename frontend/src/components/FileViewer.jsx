@@ -55,16 +55,18 @@ const FileViewer = ({ docId, title, isBase = false }) => {
     const isPDF = fileType === 'application/pdf' || fileUrl?.toLowerCase().endsWith('.pdf');
 
     return (
-        <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-950">
-            <div className="h-10 flex items-center justify-between px-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30 shrink-0">
+        <div className="flex-1 flex flex-col min-h-0 bg-[#fefaf2] dark:bg-[#0c0a09]">
+            <div className="h-12 flex items-center justify-center px-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30 shrink-0">
                 <div className="flex items-center gap-2">
-                    <FileText className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 truncate max-w-[150px]">
+                    <FileText className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm font-black uppercase tracking-tight text-slate-800 dark:text-slate-200 truncate max-w-[400px]">
                         {title}
                     </span>
-                    {isBase && <span className="text-[7px] font-black bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase tracking-widest ml-2">Base</span>}
-                </div>
-                <div className="flex items-center gap-1">
+                    {isBase && (
+                        <span className="text-[8px] font-black bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-full uppercase tracking-widest ml-2 border border-emerald-500/20 shadow-sm">
+                            BASE DOC
+                        </span>
+                    )}
                 </div>
             </div>
 

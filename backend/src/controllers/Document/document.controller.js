@@ -1,4 +1,5 @@
 const Document = require("../../models/Document");
+const Audit = require("../../models/Audit");
 const { cloudinary } = require("../../config/cloudinary");
 const DocumentReaderService = require("../../services/document/reader.service");
 
@@ -125,6 +126,14 @@ exports.deleteDocument = async (req, res) => {
     if (doc.publicId) {
       await cloudinary.uploader.destroy(doc.publicId);
     }
+
+    // Delete associated audits (variances)
+    await Audit.deleteMany({
+      $or: [
+        { sourceDocumentId: req.params.id },
+        { targetDocumentId: req.params.id }
+      ]
+    });
 
     // Nullify references in target documents
     await Document.updateMany({ sourceId: req.params.id }, { sourceId: null });

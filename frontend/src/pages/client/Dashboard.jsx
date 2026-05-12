@@ -7,7 +7,7 @@ import {
     Activity,
     Loader2
 } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
 
@@ -16,6 +16,7 @@ import { RecentActivity, AnalysisAssistant, AnalysisInsights } from '../../compo
 import api from '../../lib/api';
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const [data, setData] = useState({
         documents: [],
         audits: [],
@@ -43,10 +44,22 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
+    const completedAudits = data.audits.filter(a => a.status === 'completed');
+    const auditedDocIds = new Set(completedAudits.map(a => {
+        if (!a.targetDocumentId) return null;
+        return typeof a.targetDocumentId === 'object' ? a.targetDocumentId._id : a.targetDocumentId;
+    }).filter(id => id !== null));
+
+    const totalRiskAlerts = data.audits.reduce((acc, audit) => {
+        if (!audit.results || !audit.results.clauses) return acc;
+        const count = audit.results.clauses.filter(c => c.status === 'variance' || c.status === 'alert').length;
+        return acc + count;
+    }, 0);
+
     const stats = [
-        { label: 'Total Audits', value: data.audits.length, icon: FileText, bgClass: 'kpi-indigo', path: '/client/audit' },
-        { label: 'Risk Alerts', value: data.audits.filter(a => a.status === 'Completed').length, icon: ShieldAlert, bgClass: 'kpi-rose', path: '/client/compare' },
-        { label: 'Pending Review', value: data.documents.filter(doc => !doc.isSource).length, icon: Clock, bgClass: 'kpi-violet', path: '/client/documents' },
+        { label: 'Total Audits', value: completedAudits.length, icon: FileText, bgClass: 'kpi-indigo', path: '/client/audit' },
+        { label: 'Risk Alerts', value: totalRiskAlerts, icon: ShieldAlert, bgClass: 'kpi-rose', path: '/client/compare' },
+        { label: 'Pending Review', value: data.documents.filter(doc => !doc.isSource && !auditedDocIds.has(doc._id)).length, icon: Clock, bgClass: 'kpi-violet', path: '/client/documents' },
     ];
 
     const headerActions = React.useMemo(() => (
@@ -69,7 +82,7 @@ const Dashboard = () => {
                         key={i} 
                         to={stat.path}
                         className={cn(
-                            "kpi-card pill-card transition-all active:scale-[0.98] cursor-pointer group",
+                            "kpi-card pill-card transition-all",
                             stat.bgClass
                         )}
                     >
@@ -116,37 +129,30 @@ const Dashboard = () => {
                             <p className="text-[10px] font-bold uppercase tracking-widest">No documents found</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {data.documents.slice(0, 3).map((doc, i) => (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            {data.documents.slice(0, 4).map((doc, i) => (
                                 <div 
                                     key={i} 
-                                    className="group relative flex flex-col p-4 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-primary transition-all duration-300 cursor-pointer overflow-hidden active:scale-[0.98]"
+                                    className="group relative flex flex-col p-3 rounded-xl border border-cyan-300/40 dark:border-cyan-800/40 bg-cyan-50/40 dark:bg-cyan-950/10 hover:border-cyan-500 transition-all duration-300 cursor-pointer overflow-hidden active:scale-[0.98]"
                                     onClick={() => navigate(`/client/audit/${doc._id}`)}
                                 >
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="w-9 h-9 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-500 group-hover:bg-primary group-hover:text-white dark:group-hover:text-slate-900 group-hover:border-primary transition-all">
-                                            <FileText className="w-4.5 h-4.5" strokeWidth={1.5} />
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="w-8 h-8 rounded-lg bg-cyan-100/50 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-800 flex items-center justify-center text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white transition-all shrink-0">
+                                            <FileText className="w-4 h-4" strokeWidth={1.5} />
                                         </div>
-                                        <div className="flex flex-col items-end">
-                                            <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-tight text-emerald-700 dark:text-emerald-400">
-                                                <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                                                Live
-                                            </span>
+                                        <div className="min-w-0 text-right">
+                                            <h3 className="text-[11px] font-bold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors truncate">
+                                                {doc.fileName}
+                                            </h3>
+                                            <p className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                                {new Date(doc.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                            </p>
                                         </div>
                                     </div>
 
-                                    <div className="mb-4 flex-1">
-                                        <h3 className="text-[13px] font-bold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors line-clamp-1">
-                                            {doc.fileName}
-                                        </h3>
-                                        <p className="text-[9px] font-black text-slate-700 dark:text-slate-500 uppercase tracking-wider mt-1">
-                                            {new Date(doc.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                        </p>
-                                    </div>
-
-                                    <div className="flex items-center justify-between pt-3 border-t border-slate-300 dark:border-slate-800">
-                                        <span className="text-[9px] font-black text-slate-900 dark:text-primary flex items-center gap-1 uppercase tracking-widest">
-                                            Analyze <ArrowUpRight className="w-2.5 h-2.5" />
+                                    <div className="flex items-center justify-center text-primary group-hover:scale-105 transition-transform mt-auto pt-3 border-t border-slate-200 dark:border-slate-800">
+                                        <span className="text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                                            Analyze <ArrowUpRight className="w-3 h-3" />
                                         </span>
                                     </div>
                                 </div>
@@ -156,7 +162,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* AI Insights Card */}
-                <div className="kpi-card p-6 shrink-0 relative group bg-card border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+                <div className="kpi-card p-6 shrink-0 relative group bg-amber-50/60 dark:bg-amber-950/10 border border-amber-300/40 dark:border-amber-900/30 rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(251,191,36,0.04)] dark:shadow-none">
                     <div className="absolute top-4 right-4 z-20">
                         <Link to="/client/compare">
                             <Button variant="ghost" size="sm" className="h-7 text-[9px] px-3 uppercase tracking-wider font-bold text-muted-foreground hover:text-primary hover:bg-muted/50 rounded-full transition-all">Expand Analysis</Button>
