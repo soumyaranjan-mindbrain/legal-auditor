@@ -32,6 +32,7 @@ const Documents = lazy(() => import('./pages/client/Documents'));
 const Audit = lazy(() => import('./pages/client/Audit'));
 const Compare = lazy(() => import('./pages/client/Compare'));
 const DocumentView = lazy(() => import('./pages/client/DocumentView'));
+const Playbook = lazy(() => import('./pages/client/Playbook'));
 
 import { HeaderProvider } from './context/HeaderContext';
 import { AuthProvider } from './context/AuthContext';
@@ -108,6 +109,7 @@ function App() {
               <Route path="/client/audit" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Audit /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/audit/:id" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Audit /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/compare" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Compare /></DashboardLayout></ProtectedRoute>} />
+              <Route path="/client/playbook" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Playbook /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/profile" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Profile /></DashboardLayout></ProtectedRoute>} />
 
               {/* Common */}
