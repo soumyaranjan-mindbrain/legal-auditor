@@ -49,7 +49,7 @@ const Infrastructure = () => {
                     { label: 'Global Latency', value: '14ms', detail: 'Median Target', icon: Activity },
                     { label: 'Energy Factor', value: '0.82', detail: 'Efficiency', icon: Zap },
                 ].map((stat, idx) => (
-                    <div key={idx} className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 bg-white dark:bg-zinc-950 shadow-sm group hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+                    <div key={idx} className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-5 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm group hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
                         <div className="w-8 h-8 rounded-md bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-muted-foreground/40 group-hover:text-primary transition-colors mb-4">
                             <stat.icon className="w-4 h-4" strokeWidth={1.5} />
                         </div>
@@ -75,7 +75,7 @@ const Infrastructure = () => {
                     </div>
                 </div>
 
-                <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-zinc-950 shadow-sm">
+                <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] overflow-hidden bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-zinc-100 dark:border-zinc-900 bg-zinc-50/50 dark:bg-zinc-900/30">
@@ -123,7 +123,7 @@ const Infrastructure = () => {
             </div>
 
             {/* Storage Distribution */}
-            <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-8 bg-zinc-950 text-white shadow-xl relative overflow-hidden group">
+            <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-8 bg-zinc-950/40 backdrop-blur-sm text-foreground shadow-sm relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity">
                     <Shield className="w-40 h-40" />
                 </div>

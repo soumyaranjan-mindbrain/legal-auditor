@@ -1,0 +1,18 @@
+# 📄 TARGET DOCUMENT 1 — HIGH RISK
+
+## File Name
+
+`Vendor_Agreement_High_Risk.txt`
+
+The client agrees to make payment within 120 days of invoice generation.
+
+The vendor shall have unlimited liability for all damages, losses, claims, and legal expenses arising from the agreement.
+
+The vendor may terminate this agreement immediately without prior notice.
+
+All disputes shall be governed by the laws of California, USA.
+
+Mindbrain grants the vendor the right to reuse internal tools and software components for commercial purposes.
+
+The agreement automatically renews every year unless canceled within 3 days before renewal.
+

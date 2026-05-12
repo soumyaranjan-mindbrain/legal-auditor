@@ -1,0 +1,17 @@
+
+# 📄 TARGET DOCUMENT 5 — COMPLIANCE VIOLATION
+
+## File Name
+
+`Data_Processing_Agreement_Compliance_Issue.txt`
+
+The vendor may share user behavioral data with advertising partners.
+
+Any security breach shall be reported within 30 business days.
+
+Customer information may be processed and stored globally.
+
+The vendor is not responsible for unauthorized data access incidents.
+
+All disputes shall be resolved in New York courts.
+

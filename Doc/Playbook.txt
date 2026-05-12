@@ -1,0 +1,147 @@
+
+
+# Mindbrain Enterprise Compliance Playbook
+
+## 1. Introduction
+
+This compliance playbook defines the mandatory legal, operational, data security, financial, and vendor governance standards that all third-party contracts, vendor agreements, NDAs, SaaS agreements, and employment-related documents must comply with before approval.
+
+Any deviation from these standards must be flagged during AI audit review.
+
+---
+
+## 2. Payment Terms & Financial Policies
+
+* Payment terms must never exceed NET-30.
+* Advance payment clauses are preferred for high-value engagements.
+* Late payment penalties above 5% are prohibited.
+* Hidden processing fees are not allowed.
+* Currency conversion liability must not fall entirely on Mindbrain.
+* Automatic price increase clauses require prior written approval.
+* Vendors cannot suspend critical services without a minimum 30-day notice.
+* Refund obligations must exist for failed deliverables.
+
+---
+
+## 3. Liability & Indemnification Rules
+
+* Total liability must not exceed $100,000.
+* Unlimited liability clauses are strictly prohibited.
+* Consequential damages must always be excluded.
+* Indirect damages must be excluded.
+* Vendors must indemnify Mindbrain against third-party IP infringement claims.
+* Liability for cybersecurity negligence must remain with the vendor.
+* Liability caps cannot be removed without executive approval.
+
+---
+
+## 4. Confidentiality & Information Protection
+
+* Every agreement must contain a confidentiality clause.
+* Confidentiality obligations must survive termination for at least 3 years.
+* Vendors cannot disclose customer data to subcontractors without approval.
+* Internal business strategies must be classified as confidential information.
+* AI training on uploaded company data is prohibited.
+* Confidential data storage must use encryption standards.
+
+---
+
+## 5. Data Protection & Privacy Compliance
+
+* All vendors must comply with GDPR-equivalent standards.
+* Customer data cannot be sold or monetized.
+* Data breaches must be reported within 48 hours.
+* Vendors must provide audit logs upon request.
+* User data retention beyond contract termination requires written approval.
+* Cross-border data transfers require legal review.
+* Data processors must maintain encryption at rest and in transit.
+* Sensitive customer data cannot be shared with advertising networks.
+
+---
+
+## 6. Termination & Exit Clauses
+
+* Minimum termination notice period must be 30 days.
+* Immediate unilateral termination rights are prohibited.
+* Mindbrain must retain data export rights after termination.
+* Vendors must support transition assistance for at least 15 days after contract termination.
+* Early termination penalties above 10% contract value are prohibited.
+
+---
+
+## 7. Arbitration & Governing Law
+
+* Arbitration clauses are mandatory.
+* Governing law must be India.
+* Jurisdiction must be Bhubaneswar, Odisha.
+* International dispute forums require executive approval.
+* Litigation-first agreements are discouraged.
+
+---
+
+## 8. Intellectual Property Ownership
+
+* All deliverables created for Mindbrain remain property of Mindbrain.
+* Vendors cannot reuse proprietary code, APIs, prompts, or internal workflows.
+* AI-generated outputs created for Mindbrain belong exclusively to Mindbrain.
+* Open-source dependencies must be disclosed.
+* Source code escrow clauses are recommended for enterprise vendors.
+
+---
+
+## 9. Security Requirements
+
+* Vendors must maintain industry-standard encryption.
+* Access logs must be retained for 90 days.
+* MFA must be enabled for privileged accounts.
+* Penetration testing reports may be requested annually.
+* Security incidents must be disclosed immediately.
+* Vendors handling financial or legal records must maintain secure backups.
+
+---
+
+## 10. Non-Compete & Restrictive Covenants
+
+* Non-compete duration must never exceed 12 months.
+* Global non-compete restrictions are prohibited.
+* Restrictions must be geographically reasonable.
+* Employee mobility rights must not be excessively restricted.
+
+---
+
+## 11. Auto-Renewal & Subscription Governance
+
+* Auto-renewal requires 30-day prior written notice.
+* Hidden renewal penalties are prohibited.
+* Subscription lock-in beyond 12 months requires approval.
+* Vendors must provide cancellation workflows.
+
+---
+
+## 12. Vendor Operational Requirements
+
+* SLAs must clearly define uptime commitments.
+* Critical vendors must provide escalation contacts.
+* Subcontractor usage requires disclosure.
+* Service interruptions must be communicated proactively.
+
+---
+
+## 13. AI & Technology Governance
+
+* Company legal documents cannot be used to train public AI models.
+* AI vendors must disclose data retention policies.
+* AI-generated legal outputs require human review.
+* Sensitive legal documents must remain isolated from public datasets.
+
+---
+
+## 14. Compliance Enforcement
+
+Any clause violating this playbook must be:
+
+* flagged during AI analysis
+* categorized by severity
+* explained with legal implications
+* provided with safer counter-clause recommendations
+

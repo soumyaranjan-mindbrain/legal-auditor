@@ -1,0 +1,18 @@
+# 📄 TARGET DOCUMENT 3 — LOW RISK
+
+## File Name
+
+`NDA_Low_Risk.txt`
+
+Both parties agree to maintain confidentiality of all shared information.
+
+Confidentiality obligations survive termination for 3 years.
+
+Disputes shall be resolved through arbitration in Bhubaneswar, Odisha.
+
+Payment terms are NET-30.
+
+Liability shall not exceed $75,000.
+
+Neither party may share user data with third parties.
+

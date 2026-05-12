@@ -36,12 +36,12 @@ const SuperAdminDashboard = () => {
             {/* System Overview High-Level Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Active Personnel', value: '42', delta: 'System-wide', icon: Users },
-                    { label: 'Platform Tenants', value: '128', delta: '+4 Internal', icon: Building2 },
-                    { label: 'Ingress Volume', value: '2.4 TB', delta: 'Last 24h', icon: Zap },
-                    { label: 'Sentinel Status', value: 'Nominal', delta: 'Active Node: US-E1', icon: Shield },
+                    { label: 'Active Personnel', value: '42', delta: 'System-wide', icon: Users, bgClass: 'kpi-indigo' },
+                    { label: 'Platform Tenants', value: '128', delta: '+4 Internal', icon: Building2, bgClass: 'kpi-amber' },
+                    { label: 'Ingress Volume', value: '2.4 TB', delta: 'Last 24h', icon: Zap, bgClass: 'kpi-violet' },
+                    { label: 'Sentinel Status', value: 'Nominal', delta: 'Active Node: US-E1', icon: Shield, bgClass: 'kpi-rose' },
                 ].map((stat, idx) => (
-                    <div key={idx} className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm group">
+                    <div key={idx} className={cn("p-6 rounded-[6px] border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm group", stat.bgClass)}>
                         <div className="flex justify-between items-start mb-4">
                             <div className="w-8 h-8 rounded-md bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all">
                                 <stat.icon className="w-4 h-4" strokeWidth={1.5} />
@@ -56,7 +56,7 @@ const SuperAdminDashboard = () => {
 
             <div className="grid grid-cols-1 gap-8">
                 {/* Recent User Activity (Section III.1.3) */}
-                <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-8 bg-white dark:bg-zinc-950 shadow-sm relative overflow-hidden group">
+                <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-8 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm relative overflow-hidden group">
                     <div className="flex justify-between items-center mb-10">
                         <h3 className="text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2 italic">
                             <Clock className="w-4 h-4 text-muted-foreground/40" /> Strategic Activity Ledger

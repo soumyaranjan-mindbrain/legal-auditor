@@ -1,0 +1,13 @@
+# 📄 TARGET DOCUMENT 4 — MISSING CLAUSES
+
+## File Name
+
+`Service_Agreement_Missing_Clauses.txt`
+
+The client shall pay the vendor within 45 days.
+
+The vendor agrees to provide software maintenance services.
+
+The agreement begins on January 1st and remains active until canceled.
+
+The vendor may use subcontractors for service delivery.

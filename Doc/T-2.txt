@@ -1,0 +1,16 @@
+# 📄 TARGET DOCUMENT 2 — MEDIUM RISK
+
+## File Name
+
+`Employment_Contract_Medium_Risk.txt`
+
+Employees must provide 15 days notice before resignation.
+
+The company reserves the right to terminate employment immediately without cause.
+
+Employees agree to a worldwide non-compete restriction lasting 5 years after termination.
+
+Confidentiality obligations survive for only 6 months after employment ends.
+
+The agreement is governed by Singapore law.
+

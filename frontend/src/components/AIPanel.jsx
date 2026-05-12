@@ -6,94 +6,145 @@ import {
     MessageSquare,
     Sparkles,
     ArrowUpRight,
-    Search
+    Search,
+    Clock,
+    FileCheck,
+    AlertTriangle
 } from "lucide-react";
 import { Button } from './ui/button';
+import { cn } from '../lib/utils';
 
-const getRoleInsights = (role) => {
-    if (role === 'admin') {
-        return {
-            metrics: [
-                { label: "Review Latency", value: "+12.4h Delta", color: "text-amber-500", bg: "bg-amber-500/5" },
-                { label: "Audit Anomaly", value: "Nexus_NDA.pdf", color: "text-red-500", bg: "bg-red-500/5" },
-            ],
-            feed: [
-                { time: "5m ago", text: "Client 'Global Finance' requested priority audit.", icon: Search },
-                { time: "22m ago", text: "New report cluster generated for 'Meridian'.", icon: Sparkles },
-            ],
-            message: "System capacity is at 24%. Priority audits are currently processing ahead of schedule."
-        };
-    }
-    if (role === 'super-admin') {
-        return {
-            metrics: [
-                { label: "Kernel Load", value: "08% Avg", color: "text-emerald-500", bg: "bg-emerald-500/5" },
-                { label: "Security Trace", value: "US-EAST Sync", color: "text-blue-500", bg: "bg-blue-500/5" },
-            ],
-            feed: [
-                { time: "1m ago", text: "Regional cluster 'AP-SOUTH-1' sync complete.", icon: Activity },
-                { time: "8m ago", text: "Key rotation successful for Administrator Console.", icon: ShieldAlert },
-            ],
-            message: "Global nodes are reporting nominal heartbeat. No unauthorized access attempts detected in last 24h."
-        };
-    }
-    return {
-        metrics: [
-            { label: "Anomaly Detected", value: "Section 4.2", color: "text-red-500", bg: "bg-red-500/5" },
-            { label: "Optimal Clause", value: "Liability Cap", color: "text-emerald-500", bg: "bg-emerald-500/5" },
-        ],
-        feed: [
-            { time: "2m ago", text: "System identified high-risk variance in indemnification terms.", icon: ShieldAlert },
-            { time: "15m ago", text: "Vector embedding complete for Thompson_NDA.docx.", icon: Sparkles },
-            { time: "1h ago", text: "New precedent match found: 'Liability Limits 2024'.", icon: Search },
-        ],
-        message: "I've flagged three discrepancies in the governing law section. Would you like a comparative summary?"
+export const AnalysisInsights = ({ role = 'client', data = { documents: [], audits: [] } }) => {
+    const completedAudits = data.audits.filter(a => a.status === 'completed');
+
+    const getLiveInsights = () => {
+        const totalAudits = data.audits.length;
+        const completedAudits = data.audits.filter(a => a.status === 'completed');
+        
+        // Calculate real compliance avg
+        const avgCompliance = completedAudits.length > 0 
+            ? Math.round(completedAudits.reduce((acc, curr) => acc + (curr.results?.complianceMatch || 0), 0) / completedAudits.length)
+            : 0;
+
+        // Count actual critical variances
+        const criticalVariances = completedAudits.reduce((acc, curr) => {
+            return acc + (curr.results?.clauses?.filter(c => c.severity === 'critical' || c.severity === 'high').length || 0);
+        }, 0);
+
+        const latestAudit = completedAudits[0];
+        
+        // Extract the most significant latest variance
+        const latestVariance = latestAudit?.results?.clauses?.find(c => c.status === 'variance' || c.status === 'alert');
+
+        const metrics = [
+            { 
+                label: "Global Compliance", 
+                value: completedAudits.length > 0 ? `${avgCompliance}% Avg` : "Awaiting Audit", 
+                color: avgCompliance > 80 ? "text-emerald-600" : (avgCompliance > 50 ? "text-amber-600" : "text-rose-600"), 
+                bg: "bg-slate-50 dark:bg-slate-900" 
+            },
+            { 
+                label: "Latest Variance", 
+                value: latestVariance ? latestVariance.title : (completedAudits.length > 0 ? "No High Risks" : "Nominal Health"), 
+                color: latestVariance ? (latestVariance.severity === 'critical' ? "text-rose-600" : "text-amber-600") : "text-emerald-600", 
+                bg: latestVariance ? "kpi-rose" : "kpi-emerald" 
+            },
+            { 
+                label: "Analyzed Node", 
+                value: latestAudit ? latestAudit.targetDocumentId?.fileName || "Unknown File" : "No Active Node", 
+                color: "text-indigo-600", 
+                bg: "kpi-indigo" 
+            },
+        ];
+
+        return { metrics };
     };
-};
 
-export const AnalysisInsights = ({ role = 'client' }) => {
-    const insights = getRoleInsights(role);
+    const insights = getLiveInsights();
+
     return (
         <div className="space-y-4">
             <div className="flex items-center gap-2">
-                <Activity className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Analysis Insights</span>
+                <Activity className="w-3.5 h-3.5 text-slate-800 dark:text-slate-200" strokeWidth={2.5} />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-300">Live Analysis Insights</span>
             </div>
-            <div className="space-y-3">
-                {insights.metrics.map((item, i) => (
-                    <div key={i} className={`p-3 rounded-md border border-zinc-200 dark:border-zinc-800 ${item.bg} flex items-center justify-between group cursor-pointer hover:border-zinc-300 dark:hover:border-zinc-700 transition-all`}>
-                        <div className="space-y-0.5">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.label}</p>
-                            <p className="text-xs font-semibold">{item.value}</p>
+            
+            {completedAudits.length === 0 ? (
+                <div className="p-6 rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 flex flex-col items-center justify-center text-center">
+                    <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-relaxed">
+                        Start analysis to see live insights here
+                    </p>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {insights.metrics.map((item, i) => (
+                        <div key={i} className={cn(
+                            "p-3.5 rounded-xl border border-slate-300 dark:border-slate-800 flex items-center justify-between group cursor-pointer hover:border-primary transition-all shadow-sm dark:shadow-none",
+                            item.bg.startsWith('kpi-') ? item.bg : `bg-white dark:bg-slate-900 ${item.bg}`
+                        )}>
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-widest leading-none">{item.label}</p>
+                                <p className={cn("text-xs font-black tracking-tight line-clamp-1", item.color)}>{item.value}</p>
+                            </div>
+                            <ArrowUpRight className="w-3 h-3 text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors" />
                         </div>
-                        <ArrowUpRight className="w-3 h-3 text-muted-foreground/30 group-hover:text-primary transition-colors" />
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
 
-export const RecentActivity = ({ role = 'client' }) => {
-    const insights = getRoleInsights(role);
+export const RecentActivity = ({ role = 'client', data = { documents: [], audits: [] } }) => {
+    
+    const getLiveFeed = () => {
+        const feed = [];
+        
+        // Add doc events
+        data.documents.slice(0, 2).forEach(doc => {
+            feed.push({
+                time: "Recently",
+                text: `Ingress complete for ${doc.fileName}.`,
+                icon: FileCheck
+            });
+        });
+
+        // Add audit events
+        data.audits.slice(0, 2).forEach(audit => {
+            feed.push({
+                time: "Audit Node",
+                text: `AI risk evaluation complete for target cluster.`,
+                icon: ShieldAlert
+            });
+        });
+
+        if (feed.length === 0) {
+            feed.push({ time: "System Idle", text: "Awaiting document ingress to begin analysis stream.", icon: Clock });
+        }
+
+        return feed.slice(0, 3);
+    };
+
+    const feed = getLiveFeed();
+
     return (
         <div className="space-y-4">
             <div className="flex items-center gap-2">
-                <Zap className="w-3.5 h-3.5 text-primary" strokeWidth={2} />
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Recent Activity</span>
+                <Zap className="w-3.5 h-3.5 text-slate-800 dark:text-slate-200" strokeWidth={2.5} />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-300">Analysis Feed</span>
             </div>
-            <div className="relative pl-4 border-l border-zinc-100 dark:border-zinc-900 space-y-6">
-                {insights.feed.map((event, i) => (
+            <div className="relative pl-4 border-l-2 border-slate-100 dark:border-slate-800 space-y-6">
+                {feed.map((event, i) => (
                     <div key={i} className="relative">
-                        <div className="absolute -left-[21px] top-0 w-3 h-3 rounded-full bg-background border-2 border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
-                            <div className="w-1 h-1 rounded-full bg-primary" />
+                        <div className="absolute -left-[21px] top-0 w-3 h-3 rounded-full bg-white dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                            <div className="w-1 h-1 rounded-full bg-slate-400 dark:bg-slate-600 group-hover:bg-primary" />
                         </div>
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter">{event.time}</span>
-                                <event.icon className="w-3 h-3 text-muted-foreground/40" strokeWidth={1.5} />
+                                <span className="text-[9px] font-black text-slate-700 dark:text-slate-400 uppercase tracking-tighter">{event.time}</span>
+                                <event.icon className="w-3 h-3 text-slate-800 dark:text-slate-500" strokeWidth={2.5} />
                             </div>
-                            <p className="text-[11px] leading-relaxed text-foreground/80">{event.text}</p>
+                            <p className="text-[11px] leading-relaxed text-slate-800 dark:text-slate-200 font-bold">{event.text}</p>
                         </div>
                     </div>
                 ))}
@@ -102,32 +153,38 @@ export const RecentActivity = ({ role = 'client' }) => {
     );
 };
 
-export const AnalysisAssistant = ({ role = 'client' }) => {
-    const insights = getRoleInsights(role);
+export const AnalysisAssistant = ({ role = 'client', data = { documents: [], audits: [] } }) => {
+    
+    const message = data.audits.length > 0 
+        ? `System identified ${data.audits.length} comparative clusters. Would you like a global compliance summary?`
+        : "I'm ready to audit. Please upload a base document and a target contract to begin.";
+
     return (
-        <div className="bg-zinc-50 dark:bg-zinc-900/40 rounded-lg p-4 border border-zinc-200 dark:border-zinc-800 space-y-3">
-            <div className="flex items-center gap-2">
-                <MessageSquare className="w-3.5 h-3.5 text-primary/60" strokeWidth={1.5} />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Analysis Assistant</span>
+        <div className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3 relative overflow-hidden shadow-inner">
+            <div className="absolute top-0 right-0 p-2 opacity-5">
+                <MessageSquare className="w-8 h-8 text-slate-900 dark:text-slate-100" />
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed italic">
-                "{insights.message}"
+            <div className="flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-primary" strokeWidth={2.5} />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Legal AI Assistant</span>
+            </div>
+            <p className="text-sm text-slate-800 dark:text-slate-300 font-bold leading-relaxed tracking-tight italic">
+                "{message}"
             </p>
             <div className="flex gap-2 pt-1">
-                <Button variant="outline" size="sm" className="h-7 text-[9px] uppercase font-bold tracking-widest px-3 border-zinc-200 dark:border-zinc-800 bg-transparent hover:bg-white dark:hover:bg-zinc-900 transition-colors">Generate</Button>
-                <Button variant="ghost" size="sm" className="h-7 text-[9px] uppercase font-bold tracking-widest px-3 text-muted-foreground hover:text-foreground">Dismiss</Button>
+                <Button variant="outline" size="sm" className="btn-secondary h-7 text-[9px] font-bold px-4 border-slate-200 dark:border-slate-800 rounded-md dark:bg-slate-900 dark:text-slate-100">Initialize Summary</Button>
             </div>
         </div>
     );
 };
 
-export const AIPanel = ({ role = 'client' }) => {
+export const AIPanel = ({ role = 'client', data = { documents: [], audits: [] } }) => {
     return (
         <div className="space-y-8">
-            <AnalysisInsights role={role} />
-            <RecentActivity role={role} />
-            <div className="pt-4 border-t border-zinc-100 dark:border-zinc-900 text-center">
-                <AnalysisAssistant role={role} />
+            <AnalysisInsights role={role} data={data} />
+            <RecentActivity role={role} data={data} />
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <AnalysisAssistant role={role} data={data} />
             </div>
         </div>
     );

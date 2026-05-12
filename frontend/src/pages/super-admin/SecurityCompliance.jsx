@@ -27,7 +27,7 @@ const SecurityCompliance = () => {
     ];
 
     const headerActions = React.useMemo(() => (
-        <Button variant="destructive" className="h-9 px-4 rounded-md gap-2 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-risk-red/20">
+        <Button variant="destructive" className="h-9 px-4 rounded-md gap-2 text-[10px] font-bold uppercase tracking-widest shadow-sm shadow-risk-red/20">
             <ShieldAlert className="w-3.5 h-3.5" />
             Enter Lockdown Mode
         </Button>
@@ -49,7 +49,7 @@ const SecurityCompliance = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {protocols.map((p) => (
-                            <div key={p.id} className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-900/10 group/row hover:bg-white dark:hover:bg-zinc-900 transition-all cursor-pointer">
+                            <div key={p.id} className="p-5 rounded-[6px] border border-zinc-200 dark:border-zinc-800 bg-zinc-50/20 dark:bg-zinc-900/10 group/row hover:bg-white dark:hover:bg-zinc-900 transition-all cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">{p.id}</div>
                                     <div className={cn(
@@ -84,11 +84,11 @@ const SecurityCompliance = () => {
                     </h3>
                     <div className="space-y-4">
                         {reports.map((report, idx) => (
-                            <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-100 dark:border-zinc-900">
+                            <div key={idx} className="flex items-center justify-between p-4 rounded-[6px] bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-100 dark:border-zinc-900">
                                 <div className="flex items-center gap-4">
                                     <div className={cn(
                                         "w-2 h-2 rounded-full",
-                                        report.status === 'PASSED' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500'
+                                        report.status === 'PASSED' ? 'bg-emerald-500 shadow-sm' : 'bg-amber-500'
                                     )} />
                                     <div>
                                         <div className="text-xs font-bold tracking-tight">{report.type}</div>

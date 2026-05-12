@@ -30,7 +30,7 @@ const GlobalClientManagement = () => {
             <Button variant="outline" className="h-9 px-4 rounded-md text-[10px] font-bold uppercase tracking-widest border-zinc-200 dark:border-zinc-800 bg-transparent">
                 Export Registry
             </Button>
-            <Button className="h-9 px-4 rounded-md gap-2 text-[10px] font-bold uppercase tracking-widest shadow-ambient-xl">
+            <Button className="h-9 px-4 rounded-md gap-2 text-[10px] font-bold uppercase tracking-widest shadow-sm">
                 <Building2 className="w-3.5 h-3.5" />
                 Register Entity
             </Button>
@@ -49,7 +49,7 @@ const GlobalClientManagement = () => {
                     { label: 'System Load', value: '24%', delta: 'Optimal', icon: Activity },
                     { label: 'Avg Health', value: '98.2%', delta: 'Sentinel Verified', icon: CheckCircle2 },
                 ].map((stat, idx) => (
-                    <div key={idx} className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+                    <div key={idx} className="p-6 rounded-[6px] border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
                         <div className="flex justify-between items-start mb-4">
                             <div className="w-8 h-8 rounded-md bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all">
                                 <stat.icon className="w-4 h-4" strokeWidth={1.5} />
@@ -63,7 +63,7 @@ const GlobalClientManagement = () => {
             </div>
 
             {/* Client Registry */}
-            <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-950 shadow-sm overflow-hidden">
+            <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-zinc-100 dark:border-zinc-900 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/20">
                     <div className="flex items-center gap-4 flex-1 max-w-md">
                         <div className="relative w-full">

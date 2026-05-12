@@ -50,7 +50,7 @@ const Security = () => {
                     { label: 'Biometric Drift', value: 'Nominal (0.02%)', status: 'Stable', icon: Fingerprint, color: 'text-emerald-500' },
                     { label: 'Access Requests', value: '1,424/hr', status: 'Monitored', icon: Activity, color: 'text-primary' },
                 ].map((stat, idx) => (
-                    <div key={idx} className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 bg-white dark:bg-zinc-950 shadow-sm relative overflow-hidden group">
+                    <div key={idx} className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-6 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-6 opacity-[0.02] scale-150 pointer-events-none group-hover:scale-[1.7] transition-transform duration-500">
                             <stat.icon className="w-16 h-16" />
                         </div>
@@ -86,7 +86,7 @@ const Security = () => {
                     </div>
                 </div>
 
-                <div className="bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden shadow-2xl">
+                <div className="bg-zinc-950 border border-zinc-800 rounded-[6px] overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -136,7 +136,7 @@ const Security = () => {
 
             {/* Global Sentinel Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm space-y-4">
+                <div className="p-6 rounded-[6px] border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm space-y-4">
                     <div className="flex items-center gap-2 mb-2">
                         <Terminal className="w-4 h-4 text-primary" />
                         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Encryption Matrix</span>
@@ -158,7 +158,7 @@ const Security = () => {
                     </div>
                 </div>
 
-                <div className="bg-zinc-950 p-6 rounded-lg border border-zinc-800 relative overflow-hidden flex flex-col justify-between">
+                <div className="bg-zinc-950 p-6 rounded-[6px] border border-zinc-800 relative overflow-hidden flex flex-col justify-between">
                     <div className="flex items-center gap-2 mb-2 relative z-10">
                         <Zap className="w-4 h-4 text-primary animate-pulse" />
                         <span className="text-[10px] font-bold uppercase tracking-widest text-[#EAB308]">Urgent Protocols</span>

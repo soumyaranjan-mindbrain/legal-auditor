@@ -21,7 +21,7 @@ const CommandDialog = ({ children, ...props }) => {
         <DialogPrimitive.Root {...props}>
             <DialogPrimitive.Portal>
                 <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=fade-in]:fade-in-0 data-[state=fade-out]:fade-out-0" />
-                <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-0 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=zoom-in-95]:zoom-in-95 data-[state=zoom-out-95]:zoom-out-95 sm:rounded-lg">
+                <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-0 shadow-sm duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=zoom-in-95]:zoom-in-95 data-[state=zoom-out-95]:zoom-out-95 sm:rounded-[6px]">
                     <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
                         {children}
                     </Command>

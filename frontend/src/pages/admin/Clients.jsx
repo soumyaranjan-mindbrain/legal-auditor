@@ -82,7 +82,7 @@ const Clients = () => {
             {/* Client Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {clients.map((client) => (
-                    <div key={client.id} className="group border border-zinc-200 dark:border-zinc-800 rounded-lg p-6 bg-white dark:bg-zinc-950 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+                    <div key={client.id} className="group border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-6 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform">

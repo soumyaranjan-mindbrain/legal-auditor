@@ -23,7 +23,7 @@ const AdminManagement = () => {
     ];
 
     const headerActions = React.useMemo(() => (
-        <Button className="h-9 px-4 rounded-md gap-2 text-[10px] font-bold uppercase tracking-widest shadow-ambient-xl">
+        <Button className="h-9 px-4 rounded-md gap-2 text-[10px] font-bold uppercase tracking-widest shadow-sm">
             <UserPlus className="w-3.5 h-3.5" />
             Provision Administrator
         </Button>
@@ -34,7 +34,7 @@ const AdminManagement = () => {
     return (
         <div className="space-y-12 animate-in fade-in duration-500">
             {/* Admin Registry */}
-            <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-950 shadow-sm overflow-hidden">
+            <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-zinc-100 dark:border-zinc-900 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/20">
                     <div className="flex items-center gap-4 flex-1 max-w-md">
                         <div className="relative w-full">

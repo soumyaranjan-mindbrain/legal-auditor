@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Users,
     Activity,
@@ -13,13 +13,45 @@ import {
     Clock,
     UserPlus,
     FilePlus,
-    FileSearch
+    FileSearch,
+    Loader2
 } from "lucide-react";
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
 import { useHeader } from '../../context/HeaderContext';
+import api from '../../lib/api';
 
 const AdminDashboard = () => {
+    const [data, setData] = useState({
+        clients: [],
+        documents: [],
+        audits: [],
+        loading: true
+    });
+
+    const fetchData = async () => {
+        try {
+            const [clientsRes, docsRes, auditsRes] = await Promise.all([
+                api.get('/settings/clients').catch(() => ({ data: [] })), // Assuming this endpoint exists or will
+                api.get('/documents/admin/all').catch(() => api.get('/documents')), // Fallback
+                api.get('/audit/reports').catch(() => ({ data: [] }))
+            ]);
+            setData({
+                clients: clientsRes.data,
+                documents: docsRes.data,
+                audits: auditsRes.data,
+                loading: false
+            });
+        } catch (err) {
+            console.error("Admin data fetch failed", err);
+            setData(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
     const headerActions = React.useMemo(() => (
         <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="h-8 text-[10px] font-bold uppercase tracking-widest border-zinc-200 dark:border-zinc-800 bg-transparent">
@@ -35,17 +67,19 @@ const AdminDashboard = () => {
 
     useHeader('Admin Dashboard', headerActions);
 
+    const stats = [
+        { label: 'Total Clients', value: data.clients.length || '0', delta: '+0 today', icon: Users, bgClass: 'kpi-indigo' },
+        { label: 'Total Assets', value: data.documents.length, delta: 'Real-time', icon: FileText, bgClass: 'kpi-rose' },
+        { label: 'Audit Velocity', value: 'Nominal', delta: 'Active', icon: Activity, bgClass: 'kpi-amber' },
+        { label: 'Total Reports', value: data.audits.length, delta: 'Total generated', icon: FileSearch, bgClass: 'kpi-violet' },
+    ];
+
     return (
         <div className="space-y-12 animate-in fade-in duration-500">
             {/* Metric Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                    { label: 'Total Clients', value: '1,240', trend: '+12 New', icon: Users },
-                    { label: 'Active Clients', value: '1,240', delta: '+12 today', icon: Users },
-                    { label: 'Audit Velocity', value: '42.4 GB/s', delta: 'Nominal', icon: Activity },
-                    { label: 'Total Audits', value: '85.4M', delta: '+1.2M last 24h', icon: FileSearch },
-                ].map((stat, idx) => (
-                    <div key={idx} className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-sm group">
+                {stats.map((stat, idx) => (
+                    <div key={idx} className={cn("p-6 rounded-[6px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm group", stat.bgClass)}>
                         <div className="flex justify-between items-start mb-4">
                             <div className="w-8 h-8 rounded-md bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all">
                                 <stat.icon className="w-4 h-4" strokeWidth={1.5} />
@@ -59,62 +93,68 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Client Overview & Document Ingress (Section III.1.2, III.1.3) */}
+                {/* Document Ingress */}
                 <div className="lg:col-span-8 space-y-8">
-                    <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-950 shadow-sm overflow-hidden min-h-[400px] flex flex-col">
+                    <div className="border border-slate-200 dark:border-slate-800 rounded-[6px] bg-white dark:bg-slate-900 shadow-sm overflow-hidden min-h-[400px] flex flex-col">
                         <div className="p-6 border-b border-zinc-100 dark:border-zinc-900 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900/10">
                             <h3 className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
                                 <Clock className="w-4 h-4 text-muted-foreground/40" /> Recent Document Ingress
                             </h3>
                             <Button variant="ghost" className="text-[10px] font-bold uppercase tracking-widest h-7 gap-1.5 opacity-60 hover:opacity-100">
-                                Global Ingress View <ArrowUpRight className="w-3 h-3" />
+                                Global View <ArrowUpRight className="w-3 h-3" />
                             </Button>
                         </div>
 
                         <div className="divide-y divide-zinc-100 dark:divide-zinc-900 flex-1">
-                            {[
-                                { id: 'TX-4412', name: 'Institutional_Asset_Registry.pdf', client: 'MindBrain Intelligence', time: '2m ago' },
-                                { id: 'TX-4411', name: 'Legal_Flow_Optimization.docx', client: 'Nexus Legal Group', time: '14m ago' },
-                                { id: 'TX-4410', name: 'Compliance_Manifesto_V5.pdf', client: 'Quantico Systems', time: '1h ago' },
-                                { id: 'TX-4409', name: 'Regional_Policy_Manual.pdf', client: 'Zodiac Ventures', time: '3h ago' },
-                                { id: 'TX-4408', name: 'Asset_Liquidity_SOP.docx', client: 'MindBrain Intelligence', time: '5h ago' },
-                            ].map((doc, idx) => (
-                                <div key={idx} className="p-4 flex items-center justify-between group cursor-pointer hover:bg-zinc-50/50 dark:hover:bg-zinc-900 transition-colors px-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                                            <FileText className="w-4 h-4" />
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-bold tracking-tight">{doc.name}</div>
-                                            <div className="text-[10px] text-muted-foreground font-medium">{doc.client} • ID: {doc.id}</div>
-                                        </div>
-                                    </div>
-                                    <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">{doc.time}</span>
+                            {data.loading ? (
+                                <div className="flex items-center justify-center h-40">
+                                    <Loader2 className="w-6 h-6 animate-spin" />
                                 </div>
-                            ))}
+                            ) : data.documents.length === 0 ? (
+                                <div className="flex items-center justify-center h-40 opacity-20">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest">No documents found</p>
+                                </div>
+                            ) : (
+                                data.documents.slice(0, 10).map((doc, idx) => (
+                                    <div key={idx} className="p-4 flex items-center justify-between group cursor-pointer hover:bg-zinc-50/50 dark:hover:bg-zinc-900 transition-colors px-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-8 h-8 rounded bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                                                <FileText className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-bold tracking-tight">{doc.fileName}</div>
+                                                <div className="text-[10px] text-muted-foreground font-medium">Tenant ID: {doc.user}</div>
+                                            </div>
+                                        </div>
+                                        <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">
+                                            {new Date(doc.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
 
-                {/* Quick Actions & Report Metrics (Section III.1.4, III.1.5) */}
+                {/* Quick Actions */}
                 <div className="lg:col-span-4 space-y-8">
-                    <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-8 bg-zinc-950 text-zinc-100 shadow-xl min-h-[400px] flex flex-col relative overflow-hidden group">
+                    <div className="border border-slate-200 dark:border-slate-800 rounded-[6px] p-8 bg-white dark:bg-slate-900 text-foreground shadow-sm min-h-[400px] flex flex-col relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
                             <Activity className="w-40 h-40" />
                         </div>
 
-                        <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2 mb-10 text-zinc-400">
+                        <h3 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2 mb-10 text-muted-foreground">
                             Operational Commands
                         </h3>
 
                         <div className="space-y-4 flex-1">
-                            <Button className="w-full h-12 justify-start gap-4 text-[11px] font-bold uppercase tracking-widest px-6 shadow-sm">
+                            <Button className="w-full h-12 justify-start gap-4 text-[11px] font-bold uppercase tracking-widest px-6 shadow-sm rounded-[6px]">
                                 <UserPlus className="w-4 h-4" /> Onboard New Tenant
                             </Button>
-                            <Button variant="outline" className="w-full h-12 justify-start gap-4 text-[11px] font-bold uppercase tracking-widest px-6 border-zinc-800 hover:bg-zinc-900">
+                            <Button variant="outline" className="w-full h-12 justify-start gap-4 text-[11px] font-bold uppercase tracking-widest px-6 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-[6px]">
                                 <FilePlus className="w-4 h-4" /> Trigger Strategic Audit
                             </Button>
-                            <Button variant="outline" className="w-full h-12 justify-start gap-4 text-[11px] font-bold uppercase tracking-widest px-6 border-zinc-800 hover:bg-zinc-900">
+                            <Button variant="outline" className="w-full h-12 justify-start gap-4 text-[11px] font-bold uppercase tracking-widest px-6 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-[6px]">
                                 <FileSearch className="w-4 h-4" /> Batch Report Extract
                             </Button>
                         </div>

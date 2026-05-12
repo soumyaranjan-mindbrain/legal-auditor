@@ -46,7 +46,7 @@ const SystemAnalytics = () => {
             {/* Performance Matrix */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Node Health Grid */}
-                <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-8 bg-white dark:bg-zinc-950 shadow-sm overflow-hidden flex flex-col relative group">
+                <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-8 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm overflow-hidden flex flex-col relative group">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.05] transition-opacity pointer-events-none">
                         <Globe className="w-40 h-40" />
                     </div>
@@ -56,7 +56,7 @@ const SystemAnalytics = () => {
 
                     <div className="grid grid-cols-2 gap-4 flex-1">
                         {nodes.map((node) => (
-                            <div key={node.id} className="p-5 rounded-lg border border-zinc-100 dark:border-zinc-900 bg-zinc-50/20 dark:bg-zinc-900/10 hover:shadow-sm transition-all group/node">
+                            <div key={node.id} className="p-5 rounded-[6px] border border-zinc-100 dark:border-zinc-900 bg-zinc-50/20 dark:bg-zinc-900/10 hover:shadow-sm transition-all group/node">
                                 <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-3 opacity-60">{node.id}</div>
                                 <div className="flex justify-between items-end mb-3">
                                     <div className={cn("text-xs font-bold tracking-tight", node.color)}>{node.status}</div>
@@ -77,7 +77,7 @@ const SystemAnalytics = () => {
                 </div>
 
                 {/* Real-time Telemetry (Logs) */}
-                <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-8 bg-zinc-950 text-zinc-100 shadow-xl overflow-hidden flex flex-col relative">
+                <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-8 bg-zinc-950/40 backdrop-blur-sm text-foreground shadow-sm overflow-hidden flex flex-col relative">
                     <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none">
                         <Monitor className="w-40 h-40" />
                     </div>
@@ -118,7 +118,7 @@ const SystemAnalytics = () => {
                     { label: 'Ingress Volume', value: '42.1k/hr', icon: Zap },
                     { label: 'Encryption Ops', value: '850M+', icon: Shield },
                 ].map((item, idx) => (
-                    <div key={idx} className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex justify-between items-center group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30 transition-all cursor-pointer">
+                    <div key={idx} className="p-6 rounded-[6px] border border-zinc-200 dark:border-zinc-800 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm flex justify-between items-center group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30 transition-all cursor-pointer">
                         <div>
                             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 opacity-60">{item.label}</div>
                             <div className="text-lg font-bold tracking-tighter">{item.value}</div>

@@ -1,181 +1,332 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Upload as UploadIcon,
     FileText,
     CheckCircle,
     ArrowRight,
     Zap,
-    Cpu,
-    Shield,
-    Clock,
-    Search
+    X,
+    File as FileIcon,
+    Loader2,
+    Plus,
+    Trash2,
+    ShieldCheck,
+    UploadCloud
 } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
 import { useHeader } from '../../context/HeaderContext';
+import api from '../../lib/api';
 
 const Upload = () => {
-    const [state, setState] = useState("idle"); // idle | uploading | done
-    const [progress, setProgress] = useState(0);
-    const [fileName, setFileName] = useState("");
+    const navigate = useNavigate();
+    const [persistentSource, setPersistentSource] = useState(null);
+    const [newSourceFile, setNewSourceFile] = useState(null);
+    const [targetFiles, setTargetFiles] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [error, setError] = useState("");
+    const [loadingSource, setLoadingSource] = useState(true);
+    const [isSuccess, setIsSuccess] = useState(false);
 
-    useHeader('Upload');
+    useHeader('Dual-Stream Ingress');
 
-    const recentUploads = [
-        { id: 'UX-901', name: 'Service_Level_Agreement.pdf', type: 'SaaS', status: 'Analyzed', date: '1h ago' },
-        { id: 'UX-892', name: 'Master_Service_Agreement_V2.docx', type: 'Enterprise', status: 'Analyzed', date: '4h ago' },
-        { id: 'UX-881', name: 'Consulting_Contract_Final.pdf', type: 'Legal', status: 'Analyzed', date: 'Yesterday' },
-    ];
+    const sourceInputRef = useRef(null);
+    const targetsInputRef = useRef(null);
 
-    const simulateUpload = (name) => {
-        setFileName(name);
-        setState("uploading");
-        let p = 0;
-        const interval = setInterval(() => {
-            p += Math.random() * 15;
-            if (p >= 100) {
-                p = 100;
-                clearInterval(interval);
-                setTimeout(() => setState("done"), 500);
+    useEffect(() => {
+        fetchActiveSource();
+    }, []);
+
+    const fetchActiveSource = async () => {
+        try {
+            setLoadingSource(true);
+            const res = await api.get('/documents/source');
+            if (res.data) setPersistentSource(res.data);
+            else setPersistentSource(null);
+        } catch (err) {
+            console.error("Failed to fetch persistent source", err);
+        } finally {
+            setLoadingSource(false);
+        }
+    };
+
+    const handleSourceSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setNewSourceFile(file);
+            setPersistentSource(null);
+            setError("");
+        }
+    };
+
+    const handleTargetsSelect = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setTargetFiles(prev => [...prev, ...files]);
+            setError("");
+        }
+    };
+
+    const removeTarget = (index) => {
+        setTargetFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const startBulkUpload = async () => {
+        if ((!newSourceFile && !persistentSource) || targetFiles.length === 0) {
+            setError("Analysis cluster requires both source and target nodes.");
+            return;
+        }
+
+        setIsUploading(true);
+        setError("");
+        setUploadProgress(0);
+
+        try {
+            let activeSourceId = persistentSource?._id;
+
+            // 1. Sync New Source if provided
+            if (newSourceFile) {
+                const sourceData = new FormData();
+                sourceData.append('file', newSourceFile);
+                sourceData.append('type', 'source');
+                const sourceRes = await api.post('/documents/upload', sourceData);
+                
+                // Defensive check for response structure
+                const sourceDoc = sourceRes.data.data || sourceRes.data.document;
+                if (!sourceDoc?._id) throw new Error("Source synchronization failed - invalid response.");
+                activeSourceId = sourceDoc._id;
             }
-            setProgress(Math.min(p, 100));
-        }, 150);
+
+            // 2. Batch Sync Targets
+            for (let i = 0; i < targetFiles.length; i++) {
+                const targetData = new FormData();
+                targetData.append('file', targetFiles[i]);
+                targetData.append('type', 'target');
+                targetData.append('sourceId', activeSourceId);
+                await api.post('/documents/upload', targetData);
+                setUploadProgress(Math.round(((i + 1) / targetFiles.length) * 100));
+            }
+
+            // Success Transition
+            setIsSuccess(true);
+            setTimeout(() => {
+                navigate('/client/documents');
+            }, 800);
+
+        } catch (err) {
+            console.error("Cluster synchronization failed", err);
+            setError(err.response?.data?.error || err.message || "Critical cluster failure during sync.");
+            setIsUploading(false);
+        }
     };
 
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) simulateUpload(file.name);
-    };
-
-    const reset = () => {
-        setState("idle");
-        setProgress(0);
-        setFileName("");
-    };
-
-    return (
-        <div className="w-full space-y-12 pb-12 animate-in fade-in duration-500">
-            <div className="space-y-10">
-                {/* Upload Surface */}
-                <div className="relative">
-                    {state === "idle" ? (
-                        <div
-                            onDragOver={(e) => e.preventDefault()}
-                            onDrop={handleDrop}
-                            className="group relative border border-dashed border-zinc-200 dark:border-zinc-800 rounded-[6px] p-16 flex flex-col items-center justify-center space-y-4 hover:border-zinc-400 dark:hover:border-zinc-600 transition-all cursor-pointer kpi-violet min-h-[320px] shadow-sm"
-                        >
-                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => simulateUpload(e.target.files[0]?.name)} />
-                            <div className="w-14 h-14 rounded-[6px] border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                                <UploadIcon className="w-7 h-7 text-muted-foreground/40" strokeWidth={1.25} />
-                            </div>
-                            <div className="text-center">
-                                <p className="text-sm font-medium tracking-tight">Drop document to start processing</p>
-                                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em] mt-2 opacity-40">PDF, DOCX up to 50MB</p>
-                            </div>
-                            <Button variant="outline" size="sm" className="h-8 text-[9px] uppercase font-bold tracking-widest px-6 mt-2 border-zinc-200 dark:border-zinc-800 bg-white/50 backdrop-blur-sm rounded-[6px]">Select Manually</Button>
-                        </div>
-                    ) : state === "uploading" ? (
-                        <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-12 space-y-10 bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm min-h-[320px] flex flex-col justify-center transition-all duration-500">
-                            <div className="flex items-center gap-5">
-                                <div className="w-12 h-12 rounded-[6px] bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center shrink-0 shadow-sm">
-                                    <FileText className="w-6 h-6 text-white dark:text-zinc-900" strokeWidth={1.25} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex justify-between items-end mb-3">
-                                        <p className="text-sm font-medium tracking-tight truncate">{fileName}</p>
-                                        <span className="text-[10px] font-mono font-bold text-zinc-500 tracking-tighter">{Math.round(progress)}%</span>
-                                    </div>
-                                    <div className="h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-300 shadow-sm"
-                                            style={{ width: `${progress}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-                                {[
-                                    { label: "Extraction", done: progress > 30, icon: Search },
-                                    { label: "Anomaly Scan", done: progress > 65, icon: Cpu },
-                                    { label: "Legal Match", done: progress > 90, icon: Shield },
-                                ].map(({ label, done, icon: Icon }) => (
-                                    <div key={label} className={cn(
-                                        "flex items-center gap-3 p-4 rounded-[6px] border transition-all duration-500",
-                                        done ? "bg-white dark:bg-zinc-900 border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm" : "bg-transparent border-zinc-100 dark:border-zinc-900 text-muted-foreground/20"
-                                    )}>
-                                        <Icon className={cn("w-3.5 h-3.5", done ? "text-zinc-900 dark:text-zinc-100" : "text-muted-foreground/20")} strokeWidth={1.5} />
-                                        <span className="text-[9px] font-bold uppercase tracking-widest leading-none opacity-80">{label}</span>
-                                        {done && <CheckCircle className="w-3 h-3 ml-auto text-emerald-500" />}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+    // Rendering Logic
+    if (isUploading) {
+        return (
+            <div className="h-full flex flex-col items-center justify-center space-y-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm">
+                <div className="relative w-24 h-24 flex items-center justify-center">
+                    <div className="absolute inset-0 border-[4px] border-slate-100 dark:border-slate-800 rounded-full" />
+                    <div 
+                        className={cn(
+                            "absolute inset-0 border-[4px] rounded-full border-t-transparent",
+                            isSuccess ? "border-emerald-500" : "border-slate-900 dark:border-primary animate-spin"
+                        )}
+                        style={{ animationDuration: '1s' }}
+                    />
+                    {isSuccess ? (
+                        <CheckCircle className="w-10 h-10 text-emerald-500 animate-in zoom-in duration-300" strokeWidth={2} />
                     ) : (
-                        <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] p-16 text-center bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm space-y-8 min-h-[320px] flex flex-col justify-center animate-in zoom-in duration-500">
-                            <div className="w-16 h-16 rounded-full bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center mx-auto border border-zinc-200 dark:border-zinc-800 shadow-xl">
-                                <CheckCircle className="w-8 h-8 text-emerald-400" strokeWidth={1.25} />
-                            </div>
-                            <div className="space-y-3">
-                                <h3 className="text-xl font-medium tracking-tight uppercase">Analysis Complete</h3>
-                                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.1em]">Asset <span className="font-mono text-zinc-900 dark:text-zinc-100 px-2 py-0.5 bg-zinc-100 dark:bg-zinc-900 rounded-[4px]">{fileName}</span> processed successfully.</p>
-                            </div>
-                            <div className="flex gap-4 justify-center pt-4">
-                                <Link to="/client/audit">
-                                    <Button size="sm" className="h-10 px-8 text-[10px] uppercase font-bold tracking-[0.2em] shadow-sm rounded-[6px]">
-                                        View Audit <ArrowRight className="w-4 h-4 ml-2" />
-                                    </Button>
-                                </Link>
-                                <Button onClick={reset} variant="outline" size="sm" className="h-10 px-8 text-[10px] uppercase font-bold tracking-[0.2em] border-zinc-200 dark:border-zinc-800 bg-white/50 backdrop-blur-sm rounded-[6px]">
-                                    Dismiss
-                                </Button>
-                            </div>
-                        </div>
+                        <UploadCloud className="w-10 h-10 text-slate-900 dark:text-primary animate-bounce" strokeWidth={1.5} />
                     )}
                 </div>
+                <div className="text-center space-y-3">
+                    <p className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-widest">
+                        {isSuccess ? "Upload Complete" : "Uploading Documents"}
+                    </p>
+                    <div className="flex flex-col items-center gap-2">
+                        <div className="w-64 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800">
+                            <div 
+                                className={cn(
+                                    "h-full transition-all duration-500",
+                                    isSuccess ? "bg-emerald-500" : "bg-slate-900 dark:bg-primary"
+                                )} 
+                                style={{ width: `${isSuccess ? 100 : uploadProgress}%` }} 
+                            />
+                        </div>
+                        <p className="text-[10px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-widest">
+                            {isSuccess ? "Files Secured in Vault" : `${uploadProgress}% Uploaded`}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
-                {/* Recent Uploads Table */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 px-1">
-                        <div className="w-1 h-3 bg-zinc-400 dark:bg-zinc-600 rounded-full opacity-30" />
-                        <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60">Recent Analysis</h3>
+    return (
+        <div className="h-full flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
+                
+                {/* Source Stream */}
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-primary" />
+                            Source Document (Persistent)
+                        </h2>
                     </div>
-                    <div className="border border-zinc-200 dark:border-zinc-800 rounded-[6px] overflow-hidden bg-white/60 dark:bg-zinc-950/40 backdrop-blur-sm shadow-sm">
-                        <table className="w-full text-left border-collapse">
-                            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
-                                {recentUploads.map((doc) => (
-                                    <tr key={doc.id} className="group hover:bg-zinc-50/80 dark:hover:bg-zinc-900/40 transition-all duration-200">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-8 h-8 rounded-[4px] bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-muted-foreground group-hover:bg-zinc-900 group-hover:text-white dark:group-hover:bg-zinc-100 dark:group-hover:text-zinc-900 transition-all">
-                                                    <FileText className="w-4 h-4" strokeWidth={1.25} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-medium tracking-tight">{doc.name}</p>
-                                                    <p className="text-[9px] font-bold text-muted-foreground uppercase opacity-40">{doc.id} • {doc.type}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-500 mb-1">{doc.status}</span>
-                                                <div className="flex items-center gap-2 opacity-20">
-                                                    <Clock className="w-3 h-3" />
-                                                    <span className="text-[9px] font-bold">{doc.date}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                                                <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    
+                    <div 
+                        onClick={() => (newSourceFile || persistentSource) ? null : sourceInputRef.current.click()}
+                        className={cn(
+                            "flex-1 border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-8 transition-all relative overflow-hidden",
+                            (newSourceFile || persistentSource) 
+                                ? "border-slate-300 bg-slate-50 dark:bg-slate-900/50" 
+                                : "border-slate-300 hover:border-slate-900 dark:hover:border-primary cursor-pointer bg-white dark:bg-slate-900"
+                        )}
+                    >
+                        <input type="file" ref={sourceInputRef} className="hidden" onChange={handleSourceSelect} />
+                        
+                        {loadingSource ? (
+                            <Loader2 className="w-8 h-8 animate-spin text-slate-300" />
+                        ) : persistentSource ? (
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shadow-sm relative">
+                                    <ShieldCheck className="w-8 h-8 text-emerald-600" strokeWidth={2} />
+                                    <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-950" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest mb-1">Active Reference</p>
+                                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300 line-clamp-1 max-w-[200px]">{persistentSource.fileName}</p>
+                                </div>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="h-8 text-[9px] font-black uppercase tracking-widest border-slate-300 hover:border-slate-900"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        sourceInputRef.current.click();
+                                    }}
+                                >
+                                    <UploadIcon className="w-3 h-3 mr-1.5" /> Replace Source
+                                </Button>
+                            </div>
+                        ) : newSourceFile ? (
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 flex items-center justify-center shadow-sm">
+                                    <FileIcon className="w-8 h-8 text-slate-900 dark:text-primary" strokeWidth={2} />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white line-clamp-1 max-w-[200px]">{newSourceFile.name}</p>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Staged for Sync</p>
+                                </div>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="h-8 text-[9px] font-black uppercase tracking-widest border-slate-300 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setNewSourceFile(null);
+                                        fetchActiveSource();
+                                    }}
+                                >
+                                    <Trash2 className="w-3 h-3 mr-1.5" /> Cancel
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="w-14 h-14 rounded-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                                    <Plus className="w-6 h-6 text-slate-400" />
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Base Reference</p>
+                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-1">Click to sync source doc</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
+                </div>
+
+                {/* Target Stream */}
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-primary" />
+                            Target Stream (Comparison)
+                        </h2>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{targetFiles.length} Selected</span>
+                    </div>
+
+                    <div className="flex-1 flex flex-col gap-3 min-h-0">
+                        <div 
+                            onClick={() => targetsInputRef.current.click()}
+                            className="h-24 border-2 border-dashed border-slate-300 hover:border-slate-900 dark:hover:border-primary rounded-xl flex items-center justify-center cursor-pointer bg-white dark:bg-slate-900 transition-all shrink-0"
+                        >
+                            <input type="file" ref={targetsInputRef} multiple className="hidden" onChange={handleTargetsSelect} />
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                                    <Plus className="w-4 h-4 text-slate-400" />
+                                </div>
+                                <span className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Batch Addition</span>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                            {targetFiles.map((file, i) => (
+                                <div key={i} className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg group animate-in slide-in-from-right-2 duration-200">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                                        <div className="min-w-0">
+                                            <p className="text-[11px] font-bold text-slate-900 dark:text-white truncate">{file.name}</p>
+                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">{(file.size / 1024).toFixed(0)} KB</p>
+                                        </div>
+                                    </div>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-7 w-7 text-slate-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-all"
+                                        onClick={() => removeTarget(i)}
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </Button>
+                                </div>
+                            ))}
+                            {targetFiles.length === 0 && (
+                                <div className="flex-1 flex flex-col items-center justify-center h-full border border-slate-200 dark:border-slate-800 rounded-xl border-dashed opacity-50">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center px-8 leading-relaxed">
+                                        Empty target stream.<br/>Upload docs for comparison.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Global Action Bar */}
+            <div className="h-16 flex items-center justify-between px-6 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl shadow-sm">
+                <div className="flex items-center gap-4">
+                    {error && (
+                        <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest animate-pulse">{error}</p>
+                    )}
+                </div>
+                <div className="flex items-center gap-3">
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-9 text-[10px] font-black uppercase tracking-widest text-slate-600"
+                        onClick={() => { setPersistentSource(null); setNewSourceFile(null); setTargetFiles([]); setError(""); fetchActiveSource(); }}
+                    >
+                        Clear All
+                    </Button>
+                    <Button 
+                        disabled={(!newSourceFile && !persistentSource) || targetFiles.length === 0}
+                        onClick={startBulkUpload}
+                        className="btn-premium h-9 px-8 rounded-lg"
+                    >
+                        Sync Documents <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
                 </div>
             </div>
         </div>

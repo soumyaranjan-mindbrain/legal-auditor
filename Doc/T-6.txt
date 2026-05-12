@@ -1,0 +1,18 @@
+# 📄 TARGET DOCUMENT 6 — SMART DIFF TEST
+
+## File Name
+
+`Contract_V2_Changed_Clauses.txt`
+
+The client agrees to payment terms of NET-90.
+
+Termination notice period has been reduced from 30 days to 7 days.
+
+Liability cap has increased from $100,000 to unlimited liability.
+
+Arbitration requirements have been removed from this agreement.
+
+The vendor may retain customer metadata after contract termination.
+
+Non-compete restrictions shall apply globally for 3 years.
+
