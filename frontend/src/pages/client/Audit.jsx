@@ -238,18 +238,15 @@ const Audit = () => {
                 <div className="flex items-center gap-3">
                     
 
-                    <Button 
-                        onClick={initiateSync}
-                        disabled={syncing}
-                        className={cn(
-                            "h-10 px-8 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all shadow-lg",
-                            view === 'variance' 
-                                ? "bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-emerald-500/20" 
-                                : "btn-premium shadow-primary/20"
-                        )}
-                    >
-                        {view === 'variance' ? (syncing ? "Re-Analyzing..." : "Re-Analyze") : (syncing ? "Auditing..." : "Initiate Audit")}
-                    </Button>
+                    {view !== 'variance' && (
+                        <Button 
+                            onClick={initiateSync}
+                            disabled={syncing}
+                            className="h-10 px-8 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all shadow-lg btn-premium shadow-primary/20"
+                        >
+                            {syncing ? "Auditing..." : "Initiate Audit"}
+                        </Button>
+                    )}
                 </div>
             </div>            <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-4 space-y-8">
                 
