@@ -50,6 +50,17 @@ app.use("/api/audit", require("./routes/Audit/audit.routes"));
 app.use("/api/settings", require("./routes/Settings/settings.routes"));
 
 // ================= HEALTH CHECK =================
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: "Enterprise Node Active",
+    message: "MBI Legal Auditor Backend API is operational.",
+    version: "1.0.0",
+    environment: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get("/api/health", (req, res) => {
   res.status(200).json({ 
     success: true,
