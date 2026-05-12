@@ -29,6 +29,8 @@ const Profile = () => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
 
+    const isInitialMount = React.useRef(true);
+
     useEffect(() => {
         if (user) {
             setFormData({
@@ -39,22 +41,35 @@ const Profile = () => {
         }
     }, [user]);
 
-    const handleUpdate = async () => {
+    const handleUpdate = async (newName) => {
         try {
             setIsUpdating(true);
-            setSuccessMsg('');
-            // Assuming we have an update profile endpoint
-            await api.put('/auth/profile', { name: formData.name });
+            await api.put('/auth/profile', { name: newName });
             await checkUser(); // Refresh global user state
-            setSuccessMsg('Identity Matrix Synchronized.');
-            setTimeout(() => setSuccessMsg(''), 3000);
+            setSuccessMsg('Matrix Auto-Synchronized.');
+            setTimeout(() => setSuccessMsg(''), 2000);
         } catch (err) {
-            console.error("Update failed", err);
-            alert("Failed to synchronize personnel data.");
+            console.error("Auto-sync failed", err);
         } finally {
             setIsUpdating(false);
         }
     };
+
+    // Auto-save logic
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            if (formData.name && formData.name !== user?.name) {
+                handleUpdate(formData.name);
+            }
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [formData.name]);
 
     useHeader('Personnel Profile', null);
 
@@ -128,8 +143,8 @@ const Profile = () => {
                             <Mail className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 dark:text-slate-700" />
                         </div>
                     </div>
+                    </div>
                 </div>
-            </div>
         </div>
     );
 };
