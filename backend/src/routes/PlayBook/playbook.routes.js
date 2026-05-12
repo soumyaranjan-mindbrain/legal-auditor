@@ -10,7 +10,7 @@ const {
   getAllPlaybooks,
   updatePlaybook,
   deletePlaybook,
-} = require("../../controllers/Playbook/playbook.controller");
+} = require("../../controllers/PlayBook/playbook.controller");
 
 
 // ================================== 
