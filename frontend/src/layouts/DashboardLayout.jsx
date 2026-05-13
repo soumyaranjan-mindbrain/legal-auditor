@@ -25,7 +25,15 @@ import { useHeader } from '../context/HeaderContext';
 import { ThemeToggle } from '../components/theme-toggle';
 import { AuthContext } from '../context/AuthContext';
 
-const DashboardLayout = ({ children, role = 'client', title: propTitle, headerActions: propActions, showRightPanel = false, rightPanelContent }) => {
+const DashboardLayout = ({ 
+    children, 
+    role = 'client', 
+    title: propTitle, 
+    headerActions: propActions, 
+    showRightPanel = false, 
+    rightPanelContent,
+    isFullWidth = false 
+}) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { user, logout } = useContext(AuthContext);
@@ -34,6 +42,8 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
 
     const title = contextTitle || propTitle;
     const headerActions = contextActions || propActions;
+
+    // ... (keep getNavItems and handleSignOut as is)
 
     const getNavItems = () => {
         const profilePath = role === 'client' ? '/client/profile' : `/${role}/profile`;
@@ -224,8 +234,14 @@ const DashboardLayout = ({ children, role = 'client', title: propTitle, headerAc
                 {/* Center Column: Fluid Content Area */}
                 <main className="flex-1 flex flex-col min-w-0 bg-transparent overflow-hidden relative">
                     <div className={cn(
-                        "p-6 md:p-10 mx-auto w-full h-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-y-auto custom-scrollbar pb-24 md:pb-10 z-10",
-                        isCollapsed ? "max-w-[1600px]" : "max-w-[1400px]"
+                        "transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-10",
+                        isFullWidth 
+                            // In full-width mode: no padding, no scroll, let children control their own overflow
+                            ? "p-0 w-full h-full overflow-hidden" 
+                            : cn(
+                                "overflow-y-auto custom-scrollbar p-6 md:p-10 pb-24 md:pb-10 mx-auto w-full h-full",
+                                isCollapsed ? "max-w-[1600px]" : "max-w-[1400px]"
+                            )
                     )}>
                         {children}
                     </div>

@@ -105,7 +105,7 @@ function App() {
               <Route path="/dashboard" element={<ProtectedRoute role="user"><DashboardLayout role="client"><ClientDashboard /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/upload" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Upload /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/documents" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Documents /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/client/documents/:id" element={<ProtectedRoute role="user"><DashboardLayout role="client"><DocumentView /></DashboardLayout></ProtectedRoute>} />
+              <Route path="/client/documents/:id" element={<ProtectedRoute role="user"><DashboardLayout role="client" isFullWidth={true}><DocumentView /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/audit" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Audit /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/audit/:id" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Audit /></DashboardLayout></ProtectedRoute>} />
               <Route path="/client/compare" element={<ProtectedRoute role="user"><DashboardLayout role="client"><Compare /></DashboardLayout></ProtectedRoute>} />

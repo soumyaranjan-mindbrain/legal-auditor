@@ -65,8 +65,8 @@ const DocumentView = () => {
     }
 
     return (
-        <div className="h-full flex flex-col min-h-0 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-            <div className="flex-1 min-h-0 p-6 overflow-hidden">
+        <div className="h-full w-full flex flex-col bg-white dark:bg-[#0c0a09] overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
                 <FileViewer 
                     docId={doc._id} 
                     title={doc.fileName}
