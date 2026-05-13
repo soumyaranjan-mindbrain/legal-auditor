@@ -13,25 +13,35 @@ class DocumentReaderService {
      */
     static async extractText(url, mimetype) {
         try {
-            console.log(`>>> Extracting text from ${url} (${mimetype}) <<<`);
+            console.log(`>>> Document Extraction Initiated: ${url} (${mimetype}) <<<`);
             
             const response = await axios.get(url, { responseType: 'arraybuffer' });
             const buffer = Buffer.from(response.data);
-
-            if (mimetype === 'application/pdf') {
-                const data = await pdf(buffer);
-                return data.text;
+            console.log(`>>> File Fetched: ${buffer.length} bytes <<<`);
+            
+            if (mimetype === 'application/pdf' || url.toLowerCase().endsWith('.pdf')) {
+                console.log(">>> Processing PDF via pdf-parse <<<");
+                try {
+                    const data = await pdf(buffer);
+                    console.log(">>> PDF Extraction Successful <<<");
+                    return data.text || "No text content found in PDF.";
+                } catch (pdfErr) {
+                    console.error(">>> pdf-parse failed specifically:", pdfErr);
+                    throw new Error(`PDF parsing failed: ${pdfErr.message}`);
+                }
             } else if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || url.endsWith('.docx')) {
+                console.log(">>> Processing DOCX via mammoth <<<");
                 const data = await mammoth.extractRawText({ buffer });
                 return data.value;
             } else if (mimetype === 'text/plain' || url.endsWith('.txt')) {
+                console.log(">>> Processing Plain Text <<<");
                 return buffer.toString('utf8');
             } else {
-                // Fallback for unknown types (try plain text)
+                console.log(`>>> Fallback: Processing as UTF-8 (detected as ${mimetype}) <<<`);
                 return buffer.toString('utf8');
             }
         } catch (err) {
-            console.error("Text extraction failed:", err);
+            console.error(">>> TEXT EXTRACTION CRITICAL FAILURE:", err);
             throw new Error(`Failed to extract text from document: ${err.message}`);
         }
     }
