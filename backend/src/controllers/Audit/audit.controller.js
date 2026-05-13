@@ -44,11 +44,20 @@ exports.performAudit = async (req, res) => {
 
         // 4. Trigger AI Comparison (Async or Sync for now)
         try {
-            // Extract real text from documents
-            const [baseContent, targetContent] = await Promise.all([
-                DocumentReaderService.extractText(baseDoc.fileUrl, baseDoc.fileType),
-                DocumentReaderService.extractText(targetDoc.fileUrl, targetDoc.fileType)
-            ]);
+            // Use pre-extracted text or extract now if missing (fallback for old docs)
+            let baseContent = baseDoc.extractedText;
+            if (!baseContent) {
+                baseContent = await DocumentReaderService.extractText(baseDoc.fileUrl, baseDoc.fileType);
+                baseDoc.extractedText = baseContent;
+                await baseDoc.save();
+            }
+
+            let targetContent = targetDoc.extractedText;
+            if (!targetContent) {
+                targetContent = await DocumentReaderService.extractText(targetDoc.fileUrl, targetDoc.fileType);
+                targetDoc.extractedText = targetContent;
+                await targetDoc.save();
+            }
 
             const auditResults = await AIService.performComparativeAudit(baseContent, targetContent);
 

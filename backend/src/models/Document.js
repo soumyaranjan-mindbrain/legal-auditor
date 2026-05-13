@@ -32,6 +32,10 @@ const documentSchema = new mongoose.Schema(
       ref: "Document",
       default: null,
     },
+    extractedText: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

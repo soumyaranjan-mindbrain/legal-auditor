@@ -30,6 +30,18 @@ exports.uploadDocument = async (req, res) => {
       sourceId: req.body.sourceId || null
     });
 
+    // Auto-extract text during upload for reliable auditing/viewing
+    try {
+      const text = await DocumentReaderService.extractText(doc.fileUrl, doc.fileType);
+      if (text) {
+        doc.extractedText = text;
+        await doc.save();
+      }
+    } catch (extractionErr) {
+      console.error("Background extraction failed:", extractionErr.message);
+      // We don't block the upload, but we log the failure
+    }
+
     res.status(201).json({
       message: isSource ? "Source reference updated" : "Target document added",
       data: doc,
@@ -156,13 +168,21 @@ exports.getDocumentContent = async (req, res) => {
       return res.status(404).json({ error: "Document not found" });
     }
 
-    let text = "";
-    try {
-      text = await DocumentReaderService.extractText(doc.fileUrl, doc.fileType);
-    } catch (extractionErr) {
-      console.error("Non-critical extraction failure:", extractionErr.message);
-      // We don't throw here so the frontend can still get the fileUrl to show the iframe
-      text = "[Unable to extract text from this document for AI analysis. Manual review required.]";
+    let text = doc.extractedText || "";
+
+    // Fallback: If text wasn't extracted during upload (old document), try extracting now
+    if (!text) {
+      try {
+        text = await DocumentReaderService.extractText(doc.fileUrl, doc.fileType);
+        // Save it so we don't have to extract again next time
+        if (text) {
+          doc.extractedText = text;
+          await doc.save();
+        }
+      } catch (extractionErr) {
+        console.error("Manual extraction fallback failed:", extractionErr.message);
+        text = "[Unable to extract text content. Please ensure the file is not a scanned image.]";
+      }
     }
 
     res.json({

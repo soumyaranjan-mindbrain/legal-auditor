@@ -68,28 +68,30 @@ const FileViewer = ({ docId, title, isBase = false }) => {
                         BASE
                     </span>
                 )}
+                
+                <div className="ml-auto flex items-center gap-2">
+                    <a 
+                        href={fileUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest"
+                    >
+                        View Original
+                    </a>
+                </div>
             </div>
 
-            {/* Document Content — explicit height so iframe fills perfectly */}
-            {isPDF ? (
-                <iframe
-                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`}
-                    style={{ width: '100%', height: PDF_HEIGHT, display: 'block', border: 'none' }}
-                    title={title}
-                    allow="fullscreen"
-                />
-            ) : (
-                <div
-                    style={{ height: PDF_HEIGHT }}
-                    className="w-full overflow-y-auto custom-scrollbar p-6 bg-[#fefaf2] dark:bg-[#0c0a09]"
-                >
-                    <div className="max-w-prose mx-auto">
-                        <pre className="text-[13px] leading-relaxed text-slate-700 dark:text-slate-300 font-medium whitespace-pre-wrap font-sans">
-                            {content || '(No text content)'}
-                        </pre>
-                    </div>
+            {/* Document Content — Always show extracted text for speed and AI consistency */}
+            <div
+                style={{ height: PDF_HEIGHT }}
+                className="w-full overflow-y-auto custom-scrollbar p-12 bg-[#fefaf2] dark:bg-[#0c0a09]"
+            >
+                <div className="max-w-4xl mx-auto">
+                    <pre className="text-[14px] leading-relaxed text-slate-800 dark:text-slate-200 font-medium whitespace-pre-wrap font-sans">
+                        {content || '(No text content extracted)'}
+                    </pre>
                 </div>
-            )}
+            </div>
         </div>
     );
 };
