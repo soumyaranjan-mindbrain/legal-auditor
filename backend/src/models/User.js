@@ -25,13 +25,6 @@ const userSchema = new mongoose.Schema({
     default: "user",
   },
 
-  phone: {
-    type: String,
-    unique: true,
-    sparse: true,
-    default: null,
-  },
-
   bio: { 
     type: String, 
     default: "" 

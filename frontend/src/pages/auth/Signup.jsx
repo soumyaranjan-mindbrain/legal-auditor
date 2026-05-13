@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Command, ArrowRight, User, Mail, Lock, Phone, ShieldCheck, Loader2 } from "lucide-react";
+import { Command, ArrowRight, User, Mail, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { useAuth } from '../../hooks/useAuth';
@@ -12,7 +12,6 @@ const Signup = () => {
         name: '',
         email: '',
         password: '',
-        phone: '',
         verifyEmail: false
     });
     const [loading, setLoading] = useState(false);
@@ -62,26 +61,15 @@ const Signup = () => {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Full Name</label>
-                                <Input
-                                    placeholder="Enter your name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                    required
-                                    className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
-                                />
-                            </div>
-                            <div className="space-y-2.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Phone (Optional)</label>
-                                <Input
-                                    placeholder="Enter your phone"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                    className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
-                                />
-                            </div>
+                        <div className="space-y-2.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Full Name</label>
+                            <Input
+                                placeholder="Enter your name"
+                                value={formData.name}
+                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                required
+                                className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
+                            />
                         </div>
 
                         <div className="space-y-2.5">

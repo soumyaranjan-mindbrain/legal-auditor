@@ -48,7 +48,7 @@ const sendTokens = async (res, user) => {
 // ==========================================
 const register = async (req, res) => {
   try {
-    let { name, email, password, phone, role, verifyEmail } = req.body;
+    let { name, email, password, role, verifyEmail } = req.body;
 
     name = name?.trim();
     email = email?.trim().toLowerCase();
@@ -57,18 +57,10 @@ const register = async (req, res) => {
       return res.status(400).json({ error: "All required fields missing" });
     }
 
-    const query = [{ email }];
-    if (phone) query.push({ phone });
-
-    const existingUser = await User.findOne({ $or: query });
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      if (existingUser.email === email) {
-        return res.status(400).json({ error: "Email already exists" });
-      }
-      if (phone && existingUser.phone === phone) {
-        return res.status(400).json({ error: "Phone number already exists" });
-      }
+      return res.status(400).json({ error: "Email already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -86,7 +78,6 @@ const register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      phone: phone || null,
       role: finalRole,
       isVerified: !isVerificationEnabled, // If verification is disabled, user is active immediately
       verifyOTP: isVerificationEnabled ? otp : null,

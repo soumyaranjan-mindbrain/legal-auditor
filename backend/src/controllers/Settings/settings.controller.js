@@ -32,7 +32,6 @@ exports.updateProfile = async (req, res) => {
     const {
       name,
       email,
-      phone,
       bio,
       github,
       linkedin,
@@ -42,7 +41,6 @@ exports.updateProfile = async (req, res) => {
 
      if (name !== undefined) user.name = name;
     if (email !== undefined) user.email = email;
-    if (phone !== undefined) user.phone = phone;
     if (bio !== undefined) user.bio = bio;
     if (github !== undefined) user.github = github;
     if (linkedin !== undefined) user.linkedin = linkedin;
