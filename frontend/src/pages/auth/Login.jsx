@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Command, ArrowRight, Fingerprint, ShieldCheck, Loader2 } from "lucide-react";
+import { Command, ArrowRight, Fingerprint, ShieldCheck, Loader2, Eye, EyeOff, AlertTriangle, X } from "lucide-react";
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,6 +10,8 @@ const Login = () => {
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -74,16 +76,31 @@ const Login = () => {
                         <div className="space-y-2.5">
                             <div className="flex items-center justify-between px-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Password</label>
-                                <Link to="/forgot-password" size="sm" className="text-[10px] font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors">Recover</Link>
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowModal(true)}
+                                    className="text-[10px] font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors"
+                                >
+                                    Forgot Password
+                                </button>
                             </div>
-                            <Input
-                                type="password"
-                                placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
-                            />
+                            <div className="relative group">
+                                <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Enter your password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className="h-12 px-5 pr-12 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
 
                         <Button 
@@ -114,6 +131,40 @@ const Login = () => {
                     <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.4em]">© 2026 • ALL RIGHTS RESERVED</p>
                 </div>
             </div>
+
+            {/* Custom SMTP Blocked Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl border border-amber-200/50 dark:border-amber-900/30 p-8 shadow-2xl animate-in zoom-in-95 duration-300 relative">
+                        <button 
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex flex-col items-center text-center space-y-6">
+                            <div className="w-20 h-20 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-200 dark:border-amber-900 flex items-center justify-center">
+                                <AlertTriangle className="w-10 h-10 text-amber-600 dark:text-amber-500" />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Password Reset Restricted</h3>
+                                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+                                    password reset system is curently not available due to smtp block.
+                                </p>
+                            </div>
+
+                            <Button 
+                                onClick={() => setShowModal(false)}
+                                className="w-full h-12 bg-slate-900 dark:bg-amber-500 dark:text-slate-900 rounded-xl text-[11px] uppercase font-black tracking-[0.2em]"
+                            >
+                                Got it, thanks
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
