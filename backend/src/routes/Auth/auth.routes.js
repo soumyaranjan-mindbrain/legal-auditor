@@ -18,6 +18,7 @@ const {
   forgotPassword,
   resetPassword,
   updateProfile,
+  verifyPassword,
 } = require("../../controllers/Auth/auth.controller");
 
 // ================= AUTH =================//
@@ -105,6 +106,12 @@ router.post(
 router.post(
   "/reset-password", 
   resetPassword
+);
+
+router.post(
+  "/verify-password",
+  protect,
+  verifyPassword
 );
 
 module.exports = router;

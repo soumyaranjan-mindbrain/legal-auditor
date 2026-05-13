@@ -491,6 +491,25 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// ==========================================
+// VERIFY PASSWORD (FOR SECURE ACTIONS)
+// ==========================================
+const verifyPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const user = await User.findById(req.user.id).select("+password");
+    
+    if (!user) return res.status(404).json({ error: "User not found" });
+    
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ error: "Invalid password" });
+    
+    res.json({ success: true, msg: "Password verified" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   register,
   verifyEmail,
@@ -503,6 +522,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   updateProfile,
+  verifyPassword,
 };
 
 

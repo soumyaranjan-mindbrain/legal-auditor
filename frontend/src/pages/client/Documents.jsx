@@ -12,9 +12,10 @@ import {
     Loader2,
     AlertCircle,
     X,
-    AlertTriangle
+    AlertTriangle,
+    ShieldAlert
 } from "lucide-react";
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { cn } from '../../lib/utils';
@@ -79,7 +80,89 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, fileName, isDeleting }) => {
     );
 };
 
+const PasswordModal = ({ isOpen, onClose, onVerified, isVerifying }) => {
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    if (!isOpen) return null;
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        if (!password) {
+            setError('Verification password required');
+            return;
+        }
+        onVerified(password, setError);
+    };
+
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose} />
+            <div className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 relative z-10">
+                <div className="p-6">
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-900 dark:text-primary shrink-0 shadow-inner">
+                            <ShieldAlert className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">Confidential Access</h3>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Please verify your password to continue</p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-1">Your Login Password</label>
+                            <Input 
+                                type="password" 
+                                placeholder="Enter password" 
+                                className="h-11 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 font-bold tracking-widest px-4"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                autoFocus
+                            />
+                        </div>
+
+                        {error && (
+                            <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-100 dark:border-rose-900 p-3 rounded-lg flex items-center gap-2 text-rose-600 animate-in slide-in-from-top-1 duration-200">
+                                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                                <span className="text-[10px] font-black uppercase tracking-widest leading-none">{error}</span>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-3 pt-2">
+                            <Button 
+                                type="button"
+                                variant="ghost" 
+                                className="flex-1 h-11 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg"
+                                onClick={onClose}
+                                disabled={isVerifying}
+                            >
+                                Cancel
+                            </Button>
+                            <Button 
+                                type="submit"
+                                className="flex-1 h-11 text-[10px] font-black uppercase tracking-widest bg-slate-900 dark:bg-primary text-white dark:text-slate-900 shadow-lg shadow-slate-900/20 dark:shadow-primary/20 rounded-lg"
+                                disabled={isVerifying}
+                            >
+                                {isVerifying ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    "View Document"
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
 const Documents = () => {
+    const navigate = useNavigate();
     const [documents, setDocuments] = useState([]);
     const [auditedDocIds, setAuditedDocIds] = useState(new Set());
     const [loading, setLoading] = useState(true);
@@ -87,9 +170,12 @@ const Documents = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [pageSize, setPageSize] = React.useState(25);
 
-    // Delete Modal State
+    // Modal States
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, docId: null, fileName: '' });
     const [isDeleting, setIsDeleting] = useState(false);
+    
+    const [passwordModal, setPasswordModal] = useState({ isOpen: false, docId: null });
+    const [isVerifying, setIsVerifying] = useState(false);
 
     const fetchDocuments = async () => {
         try {
@@ -134,6 +220,23 @@ const Documents = () => {
         }
     };
 
+    const handleVerifyPassword = async (password, setModalError) => {
+        try {
+            setIsVerifying(true);
+            const res = await api.post('/auth/verify-password', { password });
+            if (res.data.success) {
+                const docId = passwordModal.docId;
+                setPasswordModal({ isOpen: false, docId: null });
+                navigate(`/client/documents/${docId}`);
+            }
+        } catch (err) {
+            console.error("Verification failed", err);
+            setModalError(err.response?.data?.error || "ACCESS DENIED: INVALID CREDENTIALS");
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
     const filteredDocs = documents.filter(doc => 
         doc.fileName.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -156,13 +259,20 @@ const Documents = () => {
 
     return (
         <div className="h-full flex flex-col space-y-6 min-h-0">
-            {/* Delete Confirmation Modal */}
+            {/* Modals */}
             <DeleteModal 
                 isOpen={deleteModal.isOpen}
                 onClose={() => setDeleteModal({ isOpen: false, docId: null, fileName: '' })}
                 onConfirm={confirmDelete}
                 fileName={deleteModal.fileName}
                 isDeleting={isDeleting}
+            />
+            
+            <PasswordModal 
+                isOpen={passwordModal.isOpen}
+                onClose={() => setPasswordModal({ isOpen: false, docId: null })}
+                onVerified={handleVerifyPassword}
+                isVerifying={isVerifying}
             />
 
             {/* Document Registry Table Container */}
@@ -240,11 +350,14 @@ const Documents = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-1 transition-opacity">
-                                                <Link to={`/client/documents/${doc._id}`}>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-700 dark:text-slate-400 hover:text-primary dark:hover:text-primary">
-                                                        <Eye className="w-3.5 h-3.5" />
-                                                    </Button>
-                                                </Link>
+                                                <Button 
+                                                    onClick={() => setPasswordModal({ isOpen: true, docId: doc._id })}
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="h-8 w-8 text-slate-700 dark:text-slate-400 hover:text-primary dark:hover:text-primary"
+                                                >
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                </Button>
                                                 <Button 
                                                     onClick={(e) => { 
                                                         e.stopPropagation(); 
