@@ -2,18 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, FileText, AlertCircle, Maximize2 } from 'lucide-react';
 import api from '../lib/api';
 
-const FileViewer = ({ docId, title, isBase = false }) => {
+const FileViewer = ({ docId, title, isBase = false, initialFileUrl = '', initialFileType = '' }) => {
     const [content, setContent] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!initialFileUrl);
     const [error, setError] = useState('');
-    const [fileType, setFileType] = useState('');
-    const [fileUrl, setFileUrl] = useState('');
+    const [fileType, setFileType] = useState(initialFileType);
+    const [fileUrl, setFileUrl] = useState(initialFileUrl);
 
     useEffect(() => {
-        if (docId) {
+        const isPDF = fileType === 'application/pdf' || fileUrl?.toLowerCase().endsWith('.pdf') || initialFileType === 'application/pdf' || initialFileUrl?.toLowerCase().endsWith('.pdf');
+        
+        if (docId && !isPDF) {
             fetchContent();
+        } else if (isPDF) {
+            setLoading(false);
         }
-    }, [docId]);
+    }, [docId, fileType, fileUrl]);
 
     const fetchContent = async () => {
         try {

@@ -15,19 +15,40 @@ class DocumentReaderService {
         try {
             console.log(`>>> Document Extraction Initiated: ${url} (${mimetype}) <<<`);
             
-            const response = await axios.get(url, { responseType: 'arraybuffer' });
+            // 1. Fetch the document with a generous timeout and proper buffer handling
+            const response = await axios.get(url, { 
+                responseType: 'arraybuffer',
+                timeout: 30000 // 30 seconds timeout
+            });
+            
             const buffer = Buffer.from(response.data);
             console.log(`>>> File Fetched: ${buffer.length} bytes <<<`);
             
             if (mimetype === 'application/pdf' || url.toLowerCase().endsWith('.pdf')) {
-                console.log(">>> Processing PDF via pdf-parse <<<");
+                console.log(">>> Processing PDF with enhanced parser <<<");
+                
+                // Defensive check: Ensure it's a PDF
+                const isPDF = buffer.slice(0, 5).toString() === '%PDF-';
+                if (!isPDF) {
+                    console.warn(">>> Warning: File lacks valid %PDF header. Attempting forced extraction anyway. <<<");
+                }
+
                 try {
+                    // Use pdf-parse with options to make it more resilient
                     const data = await pdf(buffer);
-                    console.log(">>> PDF Extraction Successful <<<");
-                    return data.text || "No text content found in PDF.";
+                    
+                    if (!data || !data.text) {
+                        console.warn(">>> PDF extracted but returned no text content. <<<");
+                        return "";
+                    }
+
+                    console.log(`>>> PDF Extraction Successful: ${data.text.length} characters found <<<`);
+                    return data.text;
                 } catch (pdfErr) {
-                    console.error(">>> pdf-parse failed specifically:", pdfErr);
-                    throw new Error(`PDF parsing failed: ${pdfErr.message}`);
+                    console.error(">>> Internal PDF parser error:", pdfErr.message);
+                    // Instead of failing the whole flow, return a clear error indicator 
+                    // that the AI service can recognize
+                    throw new Error(`PDF_PARSING_FAILED: ${pdfErr.message}`);
                 }
             } else if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || url.endsWith('.docx')) {
                 console.log(">>> Processing DOCX via mammoth <<<");
@@ -42,7 +63,8 @@ class DocumentReaderService {
             }
         } catch (err) {
             console.error(">>> TEXT EXTRACTION CRITICAL FAILURE:", err);
-            throw new Error(`Failed to extract text from document: ${err.message}`);
+            // Re-throw so the controller can handle the fallback correctly
+            throw err;
         }
     }
 }

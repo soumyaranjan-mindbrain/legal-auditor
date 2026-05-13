@@ -156,7 +156,15 @@ exports.getDocumentContent = async (req, res) => {
       return res.status(404).json({ error: "Document not found" });
     }
 
-    const text = await DocumentReaderService.extractText(doc.fileUrl, doc.fileType);
+    let text = "";
+    try {
+      text = await DocumentReaderService.extractText(doc.fileUrl, doc.fileType);
+    } catch (extractionErr) {
+      console.error("Non-critical extraction failure:", extractionErr.message);
+      // We don't throw here so the frontend can still get the fileUrl to show the iframe
+      text = "[Unable to extract text from this document for AI analysis. Manual review required.]";
+    }
+
     res.json({
       success: true,
       fileName: doc.fileName,
@@ -165,7 +173,7 @@ exports.getDocumentContent = async (req, res) => {
       content: text
     });
   } catch (err) {
-    console.error("Content extraction failed:", err);
+    console.error("Content fetch failed:", err);
     res.status(500).json({ error: err.message });
   }
 };
