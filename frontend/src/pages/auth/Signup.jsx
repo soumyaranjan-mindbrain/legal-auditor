@@ -107,16 +107,15 @@ const Signup = () => {
                         </div>
 
                         {/* Verification Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-amber-50/50 dark:bg-amber-900/10 rounded-xl border border-amber-200/30 dark:border-amber-900/20">
+                        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-800 opacity-60">
                             <div className="space-y-0.5">
                                 <p className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-700 dark:text-slate-300">Email Verification</p>
-                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Recommended for Security</p>
+                                <p className="text-[9px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-tighter">Not available due to SMTP block</p>
                             </div>
                             <div 
-                                onClick={() => setFormData({...formData, verifyEmail: !formData.verifyEmail})}
-                                className={`w-11 h-6 rounded-full relative cursor-pointer transition-all duration-300 ${formData.verifyEmail ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-800'}`}
+                                className="w-11 h-6 rounded-full relative cursor-not-allowed bg-slate-300 dark:bg-slate-800 transition-all duration-300"
                             >
-                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-sm ${formData.verifyEmail ? 'left-6' : 'left-1'}`} />
+                                <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                             </div>
                         </div>
 
