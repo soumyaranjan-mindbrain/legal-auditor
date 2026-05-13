@@ -55,6 +55,11 @@ const Upload = () => {
     const handleSourceSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['txt', 'docx'].includes(ext)) {
+                setError("Only .txt and .docx files are supported at this time.");
+                return;
+            }
             setNewSourceFile(file);
             setPersistentSource(null);
             setError("");
@@ -63,9 +68,18 @@ const Upload = () => {
 
     const handleTargetsSelect = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            setTargetFiles(prev => [...prev, ...files]);
-            setError("");
+        const validFiles = files.filter(file => {
+            const ext = file.name.split('.').pop().toLowerCase();
+            return ['txt', 'docx'].includes(ext);
+        });
+
+        if (validFiles.length !== files.length) {
+            setError("Some files were skipped. Only .txt and .docx are supported.");
+        }
+
+        if (validFiles.length > 0) {
+            setTargetFiles(prev => [...prev, ...validFiles]);
+            if (validFiles.length === files.length) setError("");
         }
     };
 
@@ -186,7 +200,7 @@ const Upload = () => {
                                 : "border-slate-300 hover:border-slate-900 dark:hover:border-primary cursor-pointer bg-white dark:bg-slate-900"
                         )}
                     >
-                        <input type="file" ref={sourceInputRef} className="hidden" onChange={handleSourceSelect} />
+                        <input type="file" ref={sourceInputRef} className="hidden" accept=".txt,.docx" onChange={handleSourceSelect} />
                         
                         {loadingSource ? (
                             <Loader2 className="w-8 h-8 animate-spin text-slate-300" />
@@ -263,7 +277,7 @@ const Upload = () => {
                             onClick={() => targetsInputRef.current.click()}
                             className="h-24 border-2 border-dashed border-slate-300 hover:border-slate-900 dark:hover:border-primary rounded-xl flex items-center justify-center cursor-pointer bg-white dark:bg-slate-900 transition-all shrink-0"
                         >
-                            <input type="file" ref={targetsInputRef} multiple className="hidden" onChange={handleTargetsSelect} />
+                            <input type="file" ref={targetsInputRef} multiple className="hidden" accept=".txt,.docx" onChange={handleTargetsSelect} />
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
                                     <Plus className="w-4 h-4 text-slate-400" />

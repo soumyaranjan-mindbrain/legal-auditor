@@ -13,14 +13,9 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     const baseName = file.originalname.split(".")[0];
-    const isPDF = file.mimetype === "application/pdf";
-
     return {
       folder: "legal-auditor/documents",
-      // 'auto' lets Cloudinary detect the type; PDFs need 'image' for inline viewing
-      resource_type: isPDF ? "image" : "raw",
-      // Preserve the original format for non-images
-      format: isPDF ? "pdf" : undefined,
+      resource_type: "raw",
       public_id: `${baseName}-${uniqueSuffix}`,
     };
   },
