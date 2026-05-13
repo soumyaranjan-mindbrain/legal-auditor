@@ -180,6 +180,19 @@ const Upload = () => {
 
     return (
         <div className="h-full flex flex-col gap-6">
+            {/* Information Banner */}
+            <div className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/30 dark:border-amber-900/30 rounded-xl p-4 flex items-center justify-between animate-in slide-in-from-top-4 duration-500">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+                        <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black text-amber-900 dark:text-amber-200 uppercase tracking-widest leading-none mb-1">Supported Formats</p>
+                        <p className="text-[9px] font-bold text-amber-600/80 dark:text-amber-400/60 uppercase tracking-widest">Right now, we only support .txt and .docx files. PDF support is coming soon!</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
                 
                 {/* Source Stream */}
@@ -309,7 +322,8 @@ const Upload = () => {
                             {targetFiles.length === 0 && (
                                 <div className="flex-1 flex flex-col items-center justify-center h-full border border-slate-200 dark:border-slate-800 rounded-xl border-dashed opacity-50">
                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center px-8 leading-relaxed">
-                                        Empty target stream.<br/>Upload docs for comparison.
+                                        Empty target stream.<br/>
+                                        <span className="text-amber-500/60 font-black">Upload .txt or .docx for comparison.</span>
                                     </p>
                                 </div>
                             )}

@@ -154,14 +154,14 @@ const Audit = () => {
                         <div 
                             key={doc._id}
                             onClick={() => navigate(`/client/audit/${doc._id}`)}
-                            className="group relative p-6 bg-white dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-2xl hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden"
+                            className="group relative p-6 bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 rounded-2xl hover:border-primary hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer overflow-hidden shadow-sm"
                         >
                             {/* Subtle background glow */}
                             <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
                             
-                            <div className="relative flex items-start justify-between mb-5">
-                                <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300 shadow-sm">
-                                    <FileText className="w-6 h-6" />
+                            <div className="relative flex items-start justify-between mb-3">
+                                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300 shadow-sm">
+                                    <FileText className="w-5 h-5" />
                                 </div>
                                 <div className="flex flex-col items-end gap-1">
                                     <div className="flex items-center gap-1.5 text-[8px] font-black text-slate-400 uppercase tracking-tighter">
@@ -185,7 +185,7 @@ const Audit = () => {
                             </div>
                             
                             <div className="relative space-y-1">
-                                <h3 className="text-sm font-black text-slate-900 dark:text-white tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
+                                <h3 className="text-[13px] font-black text-slate-900 dark:text-white tracking-tight line-clamp-1 group-hover:text-primary transition-colors">
                                     {doc.fileName}
                                 </h3>
                             </div>
