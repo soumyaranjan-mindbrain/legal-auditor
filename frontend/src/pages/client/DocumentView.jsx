@@ -71,8 +71,6 @@ const DocumentView = () => {
                     docId={doc._id} 
                     title={doc.fileName}
                     isBase={doc.isSource}
-                    initialFileUrl={doc.fileUrl}
-                    initialFileType={doc.fileType}
                 />
             </div>
         </div>

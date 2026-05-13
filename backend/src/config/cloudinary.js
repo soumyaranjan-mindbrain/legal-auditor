@@ -10,13 +10,19 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: "legal-auditor/documents",
-    resource_type: "raw", // Required for PDF, DOC, DOCX in many Cloudinary setups
-    public_id: (req, file) => {
-      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      return file.originalname.split(".")[0] + "-" + uniqueSuffix;
-    },
+  params: async (req, file) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const baseName = file.originalname.split(".")[0];
+    const isPDF = file.mimetype === "application/pdf";
+
+    return {
+      folder: "legal-auditor/documents",
+      // 'auto' lets Cloudinary detect the type; PDFs need 'image' for inline viewing
+      resource_type: isPDF ? "image" : "raw",
+      // Preserve the original format for non-images
+      format: isPDF ? "pdf" : undefined,
+      public_id: `${baseName}-${uniqueSuffix}`,
+    };
   },
 });
 
