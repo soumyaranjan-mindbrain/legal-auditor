@@ -17,9 +17,20 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
 
+        if (!email || !password) {
+            setError("All fields are mandatory.");
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setError("Please enter a valid email address.");
+            return;
+        }
+
+        setLoading(true);
         try {
             const data = await login(email, password);
             const role = data.user.role.toLowerCase();
@@ -51,7 +62,7 @@ const Login = () => {
                     </div>
                 </div>
 
-                <div className="bg-white/80 dark:bg-[#0c0a09]/60 backdrop-blur-md border border-amber-200/50 dark:border-amber-900/30 rounded-2xl p-8 shadow-xl space-y-5">
+                <div className="bg-white/80 dark:bg-[#0c0a09]/60 backdrop-blur-md border border-amber-200/50 dark:border-amber-900/30 rounded-2xl p-6 shadow-xl space-y-4">
                     <form onSubmit={handleLogin} className="space-y-6">
                         {error && (
                             <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] font-black text-rose-600 uppercase tracking-widest text-center shadow-inner">
@@ -59,7 +70,7 @@ const Login = () => {
                             </div>
                         )}
                         
-                        <div className="space-y-2.5">
+                        <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">Email</label>
                             <div className="relative">
                                 <Input
@@ -68,12 +79,12 @@ const Login = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="h-12 px-5 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
+                                    className="h-10 px-4 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2.5">
+                        <div className="space-y-1.5">
                             <div className="flex items-center justify-between px-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Password</label>
                                 <button 
@@ -91,7 +102,7 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="h-12 px-5 pr-12 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
+                                    className="h-10 px-4 pr-11 rounded-xl border-amber-200/50 dark:border-amber-900/30 bg-white dark:bg-zinc-900/30 focus-visible:ring-2 focus-visible:ring-amber-400"
                                 />
                                 <button
                                     type="button"
@@ -106,7 +117,7 @@ const Login = () => {
                         <Button 
                             type="submit" 
                             disabled={loading}
-                            className="w-full h-12 bg-slate-900 dark:bg-amber-500 dark:text-slate-900 rounded-xl text-[11px] uppercase font-black tracking-[0.2em] mt-4 group shadow-lg shadow-slate-900/10 dark:shadow-amber-500/20"
+                            className="w-full h-10 bg-slate-900 dark:bg-amber-500 dark:text-slate-900 rounded-xl text-[11px] uppercase font-black tracking-[0.2em] mt-2 group shadow-lg shadow-slate-900/10 dark:shadow-amber-500/20"
                         >
                             {loading ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -119,7 +130,7 @@ const Login = () => {
                         </Button>
                     </form>
 
-                    <div className="pt-4 text-center">
+                    <div className="pt-2 text-center">
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
                             New to Mindex? <Link to="/signup" className="text-amber-600 hover:text-amber-700 font-black decoration-2 underline-offset-4">Signup now</Link>
                         </p>
@@ -127,7 +138,7 @@ const Login = () => {
 
                 </div>
 
-                <div className="flex flex-col items-center space-y-6">
+                <div className="flex flex-col items-center space-y-4">
                     <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.4em]">© 2026 • ALL RIGHTS RESERVED</p>
                 </div>
             </div>
