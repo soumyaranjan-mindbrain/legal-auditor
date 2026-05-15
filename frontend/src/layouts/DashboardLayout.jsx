@@ -62,17 +62,7 @@ const DashboardLayout = ({
             admin: [
                 { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
                 { path: '/admin/clients', label: 'Clients', icon: Users },
-                { path: '/admin/uploads', label: 'Uploads', icon: Upload },
-                { path: '/admin/reports', label: 'Reports', icon: FileSearch },
-                { path: '/admin/settings', label: 'Settings', icon: Settings },
             ],
-            'super-admin': [
-                { path: '/super-admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-                { path: '/super-admin/admins', label: 'Admins', icon: User },
-                { path: '/super-admin/clients', label: 'Clients', icon: Users },
-                { path: '/super-admin/analytics', label: 'Analytics', icon: Activity },
-                { path: '/super-admin/compliance', label: 'Compliance', icon: Shield },
-            ]
         };
         return [...(roles[role] || roles.client), ...common];
     };

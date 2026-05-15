@@ -48,6 +48,7 @@ app.use("/api/documents", require("./routes/Documents/document.routes"));
 app.use("/api/playbooks", require("./routes/PlayBook/playbook.routes"));
 app.use("/api/audit", require("./routes/Audit/audit.routes"));
 app.use("/api/settings", require("./routes/Settings/settings.routes"));
+app.use("/api/admin", require("./routes/Admin/admin.routes"));
 
 // ================= HEALTH CHECK =================
 app.get("/", (req, res) => {

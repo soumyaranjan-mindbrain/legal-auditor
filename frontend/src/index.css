@@ -31,24 +31,24 @@
     --panel: 0 0% 100%;
     --panel-foreground: 222 47% 11%;
 
-    /* Premium SOLID Matte Pastel KPI Palette */
-    --kpi-indigo: 226 100% 97%; /* #eef2ff */
-    --kpi-indigo-border: 226 96% 82%; 
+    /* Premium SOLID Matte Pastel KPI Palette - UPDATED TO BE BRIGHTER */
+    --kpi-indigo: 226 100% 95%; /* More vivid indigo */
+    --kpi-indigo-border: 226 90% 70%; 
     
-    --kpi-violet: 250 100% 98%; /* #f5f3ff */
-    --kpi-violet-border: 250 91% 85%; 
+    --kpi-violet: 250 100% 96%; /* More vivid violet */
+    --kpi-violet-border: 250 85% 75%; 
     
-    --kpi-blue: 214 95% 97%; /* #eff6ff */
-    --kpi-blue-border: 214 94% 80%; 
+    --kpi-blue: 214 95% 95%; /* More vivid blue */
+    --kpi-blue-border: 214 90% 70%; 
     
-    --kpi-rose: 354 100% 97%; /* #fff1f2 */
-    --kpi-rose-border: 354 93% 85%; 
+    --kpi-rose: 354 100% 95%; /* More vivid rose */
+    --kpi-rose-border: 354 90% 75%; 
     
-    --kpi-amber: 48 100% 96%; /* #fffbeb */
-    --kpi-amber-border: 48 89% 75%; 
+    --kpi-amber: 48 100% 94%; /* More vivid amber */
+    --kpi-amber-border: 48 90% 65%; 
 
-    --kpi-emerald: 149 80% 96%; /* #ecfdf5 */
-    --kpi-emerald-border: 149 71% 75%; 
+    --kpi-emerald: 149 80% 94%; /* More vivid emerald */
+    --kpi-emerald-border: 149 70% 65%; 
   }
 
   .dark {
@@ -76,24 +76,24 @@
     --panel: 222 47% 4%; 
     --panel-foreground: 210 40% 98%;
 
-    /* Premium DARK Matte KPI Palette - High Contrast */
-    --kpi-indigo: 226 50% 12%; 
-    --kpi-indigo-border: 226 70% 25%;
+    /* Premium DARK Matte KPI Palette - BRIGHTER GLOW */
+    --kpi-indigo: 226 60% 15%; 
+    --kpi-indigo-border: 226 80% 35%;
     
-    --kpi-violet: 250 50% 12%; 
-    --kpi-violet-border: 250 70% 25%;
+    --kpi-violet: 250 60% 15%; 
+    --kpi-violet-border: 250 80% 35%;
     
-    --kpi-blue: 214 50% 10%; 
-    --kpi-blue-border: 214 70% 22%;
+    --kpi-blue: 214 60% 12%; 
+    --kpi-blue-border: 214 80% 30%;
     
-    --kpi-rose: 354 50% 12%; 
-    --kpi-rose-border: 354 70% 25%;
+    --kpi-rose: 354 60% 15%; 
+    --kpi-rose-border: 354 80% 35%;
     
-    --kpi-amber: 48 50% 10%; 
-    --kpi-amber-border: 48 70% 22%;
+    --kpi-amber: 48 60% 12%; 
+    --kpi-amber-border: 48 80% 30%;
 
-    --kpi-emerald: 149 50% 10%; 
-    --kpi-emerald-border: 149 70% 22%;
+    --kpi-emerald: 149 60% 12%; 
+    --kpi-emerald-border: 149 80% 30%;
   }
 
   * {
@@ -110,20 +110,25 @@
     text-rendering: optimizeLegibility;
     min-height: 100vh;
     
-    /* Premium Warm Ambient Gradient - Parchment System */
+    /* Premium Atmospheric Background - Layered Grain & Gradient System */
     background: 
-      radial-gradient(circle at top left, rgba(251,191,36,0.12), transparent 35%),
-      radial-gradient(circle at bottom right, rgba(251,191,36,0.08), transparent 40%),
-      #fffbf0;
+      /* Subtle Grain Texture */
+      radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 100%),
+      /* Multi-point Warm Tints */
+      radial-gradient(circle at 0% 0%, rgba(251, 191, 36, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(251, 191, 36, 0.03) 0%, transparent 50%),
+      #fdfcf7; /* Warm Silk Off-White */
     background-attachment: fixed;
   }
 
   .dark body {
-    /* Cinematic Warm Amber Gradient - Dark Mode */
+    /* Cinematic Obsidian-Amber Depth - Dark Mode */
     background: 
-      radial-gradient(circle at top left, rgba(251,191,36,0.12), transparent 35%),
-      radial-gradient(circle at bottom right, rgba(251,191,36,0.08), transparent 40%),
-      #0c0a09;
+      radial-gradient(circle at 0% 0%, rgba(251, 191, 36, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(251, 191, 36, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 50% 0%, rgba(251, 191, 36, 0.02) 0%, transparent 50%),
+      #080705; /* Deep Obsidian */
     background-attachment: fixed;
   }
 

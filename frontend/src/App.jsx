@@ -11,19 +11,9 @@ const Signup = lazy(() => import('./pages/auth/Signup'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
 const Profile = lazy(() => import('./pages/profile/Profile'));
 
-// Super Admin
-const SuperAdminDashboard = lazy(() => import('./pages/super-admin/Dashboard'));
-const AdminManagement = lazy(() => import('./pages/super-admin/AdminManagement'));
-const GlobalClientManagement = lazy(() => import('./pages/super-admin/GlobalClientManagement'));
-const SystemAnalytics = lazy(() => import('./pages/super-admin/SystemAnalytics'));
-const SecurityCompliance = lazy(() => import('./pages/super-admin/SecurityCompliance'));
-
 // Admin
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const Clients = lazy(() => import('./pages/admin/Clients'));
-const Reports = lazy(() => import('./pages/admin/Reports'));
-const DocumentManagement = lazy(() => import('./pages/admin/DocumentManagement'));
-const SystemSettings = lazy(() => import('./pages/admin/SystemSettings'));
 
 // Client
 const ClientDashboard = lazy(() => import('./pages/client/Dashboard'));
@@ -83,22 +73,10 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
-              {/* Super Admin Routes */}
-              <Route path="/super-admin" element={<Navigate to="/super-admin/dashboard" replace />} />
-              <Route path="/super-admin/dashboard" element={<ProtectedRoute role="admin"><DashboardLayout role="super-admin"><SuperAdminDashboard /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/super-admin/admins" element={<ProtectedRoute role="admin"><DashboardLayout role="super-admin"><AdminManagement /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/super-admin/clients" element={<ProtectedRoute role="admin"><DashboardLayout role="super-admin"><GlobalClientManagement /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/super-admin/analytics" element={<ProtectedRoute role="admin"><DashboardLayout role="super-admin"><SystemAnalytics /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/super-admin/compliance" element={<ProtectedRoute role="admin"><DashboardLayout role="super-admin"><SecurityCompliance /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/super-admin/profile" element={<ProtectedRoute role="admin"><DashboardLayout role="super-admin"><Profile /></DashboardLayout></ProtectedRoute>} />
-
               {/* Admin Routes */}
               <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><DashboardLayout role="admin"><AdminDashboard /></DashboardLayout></ProtectedRoute>} />
               <Route path="/admin/clients" element={<ProtectedRoute role="admin"><DashboardLayout role="admin"><Clients /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/admin/uploads" element={<ProtectedRoute role="admin"><DashboardLayout role="admin"><DocumentManagement /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/admin/reports" element={<ProtectedRoute role="admin"><DashboardLayout role="admin"><Reports /></DashboardLayout></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute role="admin"><DashboardLayout role="admin"><SystemSettings /></DashboardLayout></ProtectedRoute>} />
               <Route path="/admin/profile" element={<ProtectedRoute role="admin"><DashboardLayout role="admin"><Profile /></DashboardLayout></ProtectedRoute>} />
 
               {/* Client Routes */}
